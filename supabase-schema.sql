@@ -13,9 +13,13 @@ create table if not exists public.user_data (
   checkins    jsonb default '{}'::jsonb,
   notes       jsonb default '{}'::jsonb,
   diet        jsonb,
+  nivel       text default 'principiante',
   onboarded   boolean default false,
   updated_at  timestamptz default now()
 );
+
+-- Migración: si ya habías creado la tabla antes (sin la columna "nivel"), esto la agrega sin borrar nada
+alter table public.user_data add column if not exists nivel text default 'principiante';
 
 -- Activa seguridad a nivel de fila: nadie puede leer/escribir filas ajenas
 alter table public.user_data enable row level security;
