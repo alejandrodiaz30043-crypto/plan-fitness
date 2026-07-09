@@ -5,21 +5,27 @@
 
 -- Tabla: un registro por usuario, con todo su progreso en columnas JSON
 create table if not exists public.user_data (
-  user_id     uuid primary key references auth.users(id) on delete cascade,
-  mode        text default 'casa',
-  days        jsonb default '[0,1,2,3,4,5]'::jsonb,
-  start_date  date default current_date,
-  log         jsonb default '{}'::jsonb,
-  checkins    jsonb default '{}'::jsonb,
-  notes       jsonb default '{}'::jsonb,
-  diet        jsonb,
-  nivel       text default 'principiante',
-  onboarded   boolean default false,
-  updated_at  timestamptz default now()
+  user_id      uuid primary key references auth.users(id) on delete cascade,
+  mode         text default 'casa',
+  days         jsonb default '[0,1,2,3,4,5]'::jsonb,
+  start_date   date default current_date,
+  log          jsonb default '{}'::jsonb,
+  checkins     jsonb default '{}'::jsonb,
+  notes        jsonb default '{}'::jsonb,
+  diet         jsonb,
+  nivel        text default 'principiante',
+  theme        text,
+  proteina     jsonb,
+  menu_history jsonb default '{}'::jsonb,
+  onboarded    boolean default false,
+  updated_at   timestamptz default now()
 );
 
--- Migración: si ya habías creado la tabla antes (sin la columna "nivel"), esto la agrega sin borrar nada
+-- Migraciones: agregan columnas nuevas sin borrar nada si la tabla ya existía
 alter table public.user_data add column if not exists nivel text default 'principiante';
+alter table public.user_data add column if not exists theme text;
+alter table public.user_data add column if not exists proteina jsonb;
+alter table public.user_data add column if not exists menu_history jsonb default '{}'::jsonb;
 
 -- Activa seguridad a nivel de fila: nadie puede leer/escribir filas ajenas
 alter table public.user_data enable row level security;
