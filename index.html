@@ -62,6 +62,16 @@ h1.title{font-size:28px;margin:0 0 4px;}
 .install-btn:hover{border-color:var(--coral);color:var(--coral);}
 .install-btn[hidden]{display:none;}
 
+.today-cta{position:relative;}
+.more-menu{position:relative;display:inline-block;}
+.more-summary{list-style:none;cursor:pointer;}
+.more-summary::-webkit-details-marker{display:none;}
+.more-menu[open] .more-summary{border-color:var(--coral);color:var(--coral);}
+.more-dropdown{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:2px;min-width:180px;z-index:5;box-shadow:0 10px 28px rgba(0,0,0,0.28);}
+.more-item{width:100%;text-align:left;background:transparent;border:none;border-radius:8px;padding:9px 10px;font-size:13.5px;font-family:'Manrope',sans-serif;font-weight:600;color:var(--text);cursor:pointer;}
+.more-item:hover{background:var(--surface-2);}
+.more-item[hidden]{display:none;}
+
 .auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
 .auth-screen[hidden]{display:none;}
 .auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px 24px;position:relative;}
@@ -311,7 +321,18 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <p class="eyebrow" id="eyebrowText">Sin equipo · 40+ min/día</p>
     <h1 class="title">Plan Fitness</h1>
     <p class="subtitle" id="subtitleText">Piernas, tren superior, core y cardio — con progresión automática que cambia de ejercicios con el tiempo.</p>
-    <p class="today-cta"><button class="today-btn" id="btnToday" type="button">▶ Entrenamiento de hoy</button> <button class="install-btn" id="btnMenuHoy" type="button">🍽️ Menú de hoy</button> <button class="install-btn" id="btnInstall" type="button" hidden>⬇️ Instalar app</button> <button class="install-btn" id="btnGlossary" type="button">❓ Glosario</button> <button class="install-btn" id="btnTheme" type="button">🌙 Modo claro</button></p>
+    <p class="today-cta">
+      <button class="today-btn" id="btnToday" type="button">▶ Entrenamiento de hoy</button>
+      <button class="install-btn" id="btnMenuHoy" type="button">🍽️ Menú de hoy</button>
+      <details class="more-menu" id="moreMenu">
+        <summary class="install-btn more-summary">⋯ Más</summary>
+        <menu class="more-dropdown">
+          <li><button class="more-item" id="btnGlossary" type="button">❓ Glosario</button></li>
+          <li><button class="more-item" id="btnTheme" type="button">🌙 Modo claro</button></li>
+          <li><button class="more-item" id="btnInstall" type="button" hidden>⬇️ Instalar app</button></li>
+        </menu>
+      </details>
+    </p>
     <ul class="streakbar">
       <li class="chip">🔥 <output class="num mono" id="streakNum">0</output> días seguidos</li>
       <li class="chip">📅 <output class="num mono" id="weekNum">Mes 1</output></li>
@@ -1090,6 +1111,15 @@ document.getElementById('btnGlossary').addEventListener('click', ()=> document.g
 document.getElementById('closeGlossary').addEventListener('click', ()=> document.getElementById('glossaryDialog').close());
 document.getElementById('glossaryDialog').addEventListener('click', (e)=>{ if(e.target.id==='glossaryDialog') document.getElementById('glossaryDialog').close(); });
 
+/* ============ MENÚ "MÁS" (desplegable) ============ */
+const moreMenuEl = document.getElementById('moreMenu');
+moreMenuEl.querySelectorAll('.more-item').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ moreMenuEl.open = false; });
+});
+document.addEventListener('click', (e)=>{
+  if(moreMenuEl.open && !moreMenuEl.contains(e.target)) moreMenuEl.open = false;
+});
+
 /* ============ SELECTOR DE DÍAS ============ */
 function renderDayPicker(){
   const wrap = document.getElementById('dayPicker'); wrap.innerHTML='';
@@ -1226,16 +1256,29 @@ function renderGoalGuide(key){
 
 /* ============ PROTEÍNA EN POLVO ============ */
 const PROTEIN_PURPOSES = {
-  ganar: { label:'Ganar masa muscular', short:'Complementar el entrenamiento de fuerza', scoops:(peso)=> peso && peso>75 ? 2 : 1,
+  ganar: { label:'Ganar masa muscular', short:'Complementar el entrenamiento de fuerza', scoopsMin:1, scoopsMax:3,
     momento:'un batido después de entrenar, y otro (si aplica) en la comida donde más te cueste llegar a tu meta de proteína del día.' },
-  recuperacion: { label:'Recuperación post-entreno', short:'Ayudar a tus músculos a recuperarse', scoops:()=>1,
+  recuperacion: { label:'Recuperación post-entreno', short:'Ayudar a tus músculos a recuperarse', scoopsMin:1, scoopsMax:1,
     momento:'un batido dentro de la primera hora después de entrenar.' },
-  complementar: { label:'Complementar mi dieta', short:'Me cuesta llegar a mi meta de proteína solo con comida', scoops:()=>1,
+  complementar: { label:'Complementar mi dieta', short:'Me cuesta llegar a mi meta de proteína solo con comida', scoopsMin:1, scoopsMax:2,
     momento:'un batido en el momento del día donde más te cueste comer suficiente proteína (ej: a media mañana).' },
-  bajar: { label:'Bajar de peso cuidando el músculo', short:'Saciedad + proteger músculo en déficit', scoops:()=>1,
+  bajar: { label:'Bajar de peso cuidando el músculo', short:'Saciedad + proteger músculo en déficit', scoopsMin:1, scoopsMax:2,
     momento:'un batido como snack entre comidas, para llegar con menos hambre a la siguiente y sin salirte de tus calorías.' }
 };
 const GRAMOS_POR_SCOOP = 25;
+// estimado conservador de cuánta proteína cubre una dieta normal, sin optimizarla, solo con comida
+function estimarProteinaDeComida(pesoKg){ return pesoKg * 1.2; }
+function recomendarProteina(finalidad, perfil){
+  const p = PROTEIN_PURPOSES[finalidad];
+  if(!perfil || !perfil.peso) return { scoops: p.scoopsMin, gramos: p.scoopsMin*GRAMOS_POR_SCOOP, gap:null, metaProteina:null, estimadoComida:null };
+  const metaProteina = calcularPlanNutricional(perfil).proteina;
+  const estimadoComida = estimarProteinaDeComida(perfil.peso);
+  const gap = Math.max(metaProteina - estimadoComida, 0);
+  let scoops = Math.round(gap / GRAMOS_POR_SCOOP);
+  scoops = Math.max(scoops, p.scoopsMin);
+  scoops = Math.min(scoops, p.scoopsMax);
+  return { scoops, gramos: scoops*GRAMOS_POR_SCOOP, gap: Math.round(gap), metaProteina, estimadoComida: Math.round(estimadoComida) };
+}
 function renderProteinaPicker(){
   const usaList = document.querySelector('#proteinaPicker .goal-list');
   const finList = document.getElementById('proteinaFinalidadList');
@@ -1278,19 +1321,16 @@ function mostrarRecomendacionProteina(finalidad){
   const p = PROTEIN_PURPOSES[finalidad];
   if(!p) return;
   const perfil = getDietProfile();
-  const peso = perfil ? perfil.peso : null;
-  const scoops = p.scoops(peso);
-  const gramos = scoops * GRAMOS_POR_SCOOP;
+  const r = recomendarProteina(finalidad, perfil);
   const out = document.getElementById('proteinaResult');
   out.hidden = false;
   let contexto = '';
-  if(perfil && perfil.peso){
-    const metaProteina = calcularPlanNutricional(perfil).proteina;
-    contexto = `<p class="tdee-line">Con tu meta de <output class="mono">${metaProteina}g</output> de proteína al día, esto es un empujón — el resto debe venir de comida real.</p>`;
+  if(r.metaProteina){
+    contexto = `<p class="tdee-line">Tu meta es de <output class="mono">${r.metaProteina}g</output> de proteína al día. Con comida normal sueles cubrir unos <output class="mono">${r.estimadoComida}g</output> — te faltarían cerca de <output class="mono">${r.gap}g</output>, por eso esta recomendación.</p>`;
   }
   out.innerHTML = `${contexto}<ul class="progress-grid">
-      <li class="stat-card"><output class="big mono">${scoops}</output><p class="label">Scoop${scoops>1?'s':''} al día</p></li>
-      <li class="stat-card"><output class="big mono">${gramos}g</output><p class="label">Proteína en polvo/día</p></li>
+      <li class="stat-card"><output class="big mono">${r.scoops}</output><p class="label">Scoop${r.scoops>1?'s':''} al día</p></li>
+      <li class="stat-card"><output class="big mono">${r.gramos}g</output><p class="label">Proteína en polvo/día</p></li>
     </ul>
     <p class="diet-disclaimer">Recomendado: ${p.momento} (1 scoop ≈ ${GRAMOS_POR_SCOOP}g de proteína en polvo — puede variar un poco según la marca). Esto es una guía general, no reemplaza indicación médica o de un nutricionista, sobre todo si tienes alguna condición renal o de salud.</p>`;
 }
