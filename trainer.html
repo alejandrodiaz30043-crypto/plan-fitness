@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Fitness — Panel de entrenador</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12161d; --surface:#1b212b; --surface-2:#232a35; --line:#323b48;
+  --text:#f1ede4; --text-dim:#b9c0cb; --coral:#ff6b4a; --sage:#8fb8a4;
+  --gold:#e8b34a; --on-accent:#1a1108; --radius:14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+ul,ol{list-style:none;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;min-height:100vh;}
+.wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+h1,h2,.display{font-family:'Sora',sans-serif;font-weight:700;}
+.mono{font-family:'Space Mono',monospace;}
+
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-screen[hidden]{display:none;}
+.auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;}
+.eyebrow{color:var(--coral);font-family:'Space Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;}
+.subtitle{color:var(--text-dim);font-size:13.5px;margin:0 0 18px;}
+.auth-form .row{display:flex;flex-direction:column;gap:6px;margin:0 0 14px;}
+.auth-form label{font-size:13px;color:var(--text-dim);}
+.auth-form input{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;color:var(--text);font-family:'Manrope',sans-serif;font-size:14.5px;padding:11px 12px;}
+.auth-form input:focus{outline:none;border-color:var(--coral);}
+.auth-msg{display:block;min-height:18px;font-size:13px;color:var(--coral);margin-bottom:10px;}
+.btn-primary{width:100%;background:var(--coral);color:var(--on-accent);border:none;border-radius:10px;padding:12px;font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;cursor:pointer;}
+
+header.top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px;}
+.logout-btn{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:8px 16px;font-size:13px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:26px;}
+.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
+.stat-card .big{display:block;font-size:28px;font-weight:700;color:var(--coral);}
+.stat-card .label{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
+
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+caption{text-align:left;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;padding:0 0 12px;}
+th,td{padding:12px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);}
+th{color:var(--text-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+tbody tr:last-child td{border-bottom:none;}
+.status-ok{color:var(--sage);font-weight:700;}
+.status-risk{color:var(--coral);font-weight:700;}
+.status-none{color:var(--text-dim);}
+.empty-msg{color:var(--text-dim);font-size:14px;padding:30px 0;text-align:center;}
+</style>
+</head>
+<body>
+
+<section class="auth-screen" id="authScreen">
+  <article class="auth-card">
+    <p class="eyebrow">PLAN FITNESS · ENTRENADOR</p>
+    <h1 class="display" style="font-size:24px;margin:0 0 6px;">Panel de entrenador</h1>
+    <p class="subtitle">Inicia sesión con tu cuenta de entrenador para ver a tus miembros.</p>
+    <form class="auth-form" id="authForm">
+      <p class="row"><label for="authEmail">Correo</label><input type="email" id="authEmail" autocomplete="email" required></p>
+      <p class="row"><label for="authPassword">Contraseña</label><input type="password" id="authPassword" autocomplete="current-password" required></p>
+      <output class="auth-msg" id="authMsg" aria-live="polite"></output>
+      <button class="btn-primary" type="submit">Entrar</button>
+    </form>
+  </article>
+</section>
+
+<main class="wrap" id="dashboard" hidden>
+  <header class="top">
+    <hgroup>
+      <p class="eyebrow" id="gymLabel">GIMNASIO</p>
+      <h1 class="display" style="font-size:24px;margin:0;">Panel de entrenador</h1>
+    </hgroup>
+    <button class="logout-btn" id="btnLogout" type="button">🚪 Salir</button>
+  </header>
+
+  <ul class="stat-grid">
+    <li class="stat-card"><output class="big mono" id="statTotal">0</output><p class="label">Miembros</p></li>
+    <li class="stat-card"><output class="big mono" id="statActivos">0</output><p class="label">Activos esta semana</p></li>
+    <li class="stat-card"><output class="big mono" id="statRiesgo">0</output><p class="label">En riesgo de abandono</p></li>
+  </ul>
+
+  <table id="membersTable">
+    <caption>Miembros de tu gimnasio</caption>
+    <thead>
+      <tr><th>Miembro</th><th>Racha actual</th><th>Última actividad</th><th>Estado</th></tr>
+    </thead>
+    <tbody id="membersBody"></tbody>
+  </table>
+  <p class="empty-msg" id="emptyMsg" hidden>Todavía no hay miembros asignados a tu gimnasio. Pídele al administrador que les asigne tu mismo <code>gym_id</code> desde Supabase.</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://ylctyarrmdqzqhozuscx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsY3R5YXJybWRxenFob3p1c2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjQxNDUsImV4cCI6MjA5OTA0MDE0NX0.0vyadmb1O_VhZ_7-x006Ht_8GWyUsNC4D2XFUbntuzM';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function localDateKey(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function calcularRacha(log){
+  log = log || {};
+  const fechas = Object.keys(log).filter(k=>log[k]).sort();
+  if(!fechas.length) return { racha:0, ultima:null, diasDesde:null };
+  const ultima = fechas[fechas.length-1];
+  let racha = 0;
+  const cursor = new Date(); cursor.setHours(0,0,0,0);
+  while(log[localDateKey(cursor)]){ racha++; cursor.setDate(cursor.getDate()-1); }
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const diasDesde = Math.round((hoy - new Date(ultima+'T00:00:00')) / 86400000);
+  return { racha, ultima, diasDesde };
+}
+
+async function onLogin(user){
+  const { data: mine, error } = await sb.from('user_data').select('is_trainer, gym_id').eq('user_id', user.id).maybeSingle();
+  if(error || !mine || !mine.is_trainer){
+    document.getElementById('authMsg').textContent = 'Esta cuenta no tiene acceso de entrenador. Pide que te lo activen desde Supabase.';
+    await sb.auth.signOut();
+    return;
+  }
+  document.getElementById('authScreen').hidden = true;
+  document.getElementById('dashboard').hidden = false;
+  document.getElementById('gymLabel').textContent = 'GIMNASIO · ' + (mine.gym_id || 'sin nombre');
+
+  const { data: rows, error: err2 } = await sb.from('user_data').select('user_id, display_name, log, gym_id').eq('gym_id', mine.gym_id);
+  if(err2 || !rows){ return; }
+
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  let activos = 0, riesgo = 0;
+  const body = document.getElementById('membersBody');
+  body.innerHTML = '';
+  rows
+    .map(r => ({ ...r, calc: calcularRacha(r.log) }))
+    .sort((a,b) => (b.calc.racha - a.calc.racha))
+    .forEach(r => {
+      const nombre = r.display_name || `Miembro ...${r.user_id.slice(-4)}`;
+      let estadoHtml, estadoClase;
+      if(r.calc.ultima === null){
+        estadoHtml = 'Sin actividad aún'; estadoClase = 'status-none';
+      } else if(r.calc.diasDesde >= 3){
+        estadoHtml = `⚠️ ${r.calc.diasDesde} días sin entrenar`; estadoClase = 'status-risk'; riesgo++;
+      } else {
+        estadoHtml = '✓ Activo'; estadoClase = 'status-ok'; activos++;
+      }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${nombre}</td><td class="mono">${r.calc.racha} días</td><td>${r.calc.ultima || '—'}</td><td class="${estadoClase}">${estadoHtml}</td>`;
+      body.appendChild(tr);
+    });
+
+  document.getElementById('statTotal').textContent = rows.length;
+  document.getElementById('statActivos').textContent = activos;
+  document.getElementById('statRiesgo').textContent = riesgo;
+  document.getElementById('membersTable').hidden = rows.length === 0;
+  document.getElementById('emptyMsg').hidden = rows.length !== 0;
+}
+function onLogout(){
+  document.getElementById('dashboard').hidden = true;
+  document.getElementById('authScreen').hidden = false;
+}
+sb.auth.onAuthStateChange((event, session) => {
+  if(session && session.user) onLogin(session.user);
+  else onLogout();
+});
+document.getElementById('authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const msg = document.getElementById('authMsg');
+  msg.textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error) msg.textContent = 'Correo o contraseña incorrectos.';
+});
+document.getElementById('btnLogout').addEventListener('click', async () => { await sb.auth.signOut(); });
+</script>
+</body>
+</html>

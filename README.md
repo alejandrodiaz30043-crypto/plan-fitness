@@ -31,3 +31,18 @@ La URL del proyecto y la llave pública (`anon key`) ya están puestas dentro de
 - El botón "Exportar progreso" (pestaña Progreso) sigue disponible como respaldo adicional.
 - Si cambias el contenido del sitio en el futuro, sube el número de versión en `sw.js` (`CACHE_NAME = 'plan-fitness-v2'`, etc.) para que los usuarios reciban la actualización en vez de la copia guardada.
 
+## Panel de entrenador (piloto para gimnasios) — opcional
+
+Archivo aparte: `trainer.html` — no modifica ni depende de cambios en `index.html`, es 100% independiente.
+
+**Para activarlo:**
+1. Corre la sección "FASE PILOTO" al final de `supabase-schema.sql` (es aditiva, no borra ni cambia nada de lo que ya tienes).
+2. Desde Supabase → Table Editor → `user_data`, activa a la cuenta del entrenador:
+   - `is_trainer = true`
+   - `gym_id = 'nombre-del-gimnasio'` (cualquier texto, mismo valor para todo el gimnasio)
+3. Asígnale el mismo `gym_id` a cada miembro de ese gimnasio (déjalo en blanco para quienes no pertenezcan a ningún gimnasio — la app principal sigue funcionando igual para ellos).
+4. El entrenador entra en `https://tu-usuario.github.io/tu-repo/trainer.html` con su mismo correo y contraseña, y ve: total de miembros, cuántos están activos esta semana, cuántos llevan 3+ días sin entrenar (en riesgo), y una tabla con la racha y última actividad de cada uno.
+
+Esto es aditivo y de bajo riesgo: no cambia el comportamiento de la app para usuarios normales, ni siquiera si nunca corres esta parte del SQL.
+
+
