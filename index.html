@@ -518,7 +518,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-10-a';
+const BUILD_VERSION = '2026-07-10-b';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -1543,10 +1543,21 @@ function limpiarHistorialViejo(){
   while(claves.length > 21){ delete cloudState.menuHistory[claves.shift()]; } // conserva ~3 semanas
 }
 // devuelve el menú ya guardado para esa fecha si existe; si no, genera uno nuevo y lo guarda
+function platoValido(p){
+  return p && typeof p.nombre==='string' && typeof p.ingredientes==='string' &&
+    Number.isFinite(p.kcal) && Number.isFinite(p.proteina) && Number.isFinite(p.carbos) && Number.isFinite(p.grasas);
+}
+function menuValido(m){
+  if(!m || !Array.isArray(m.snacks)) return false;
+  if(!platoValido(m.desayuno) || !platoValido(m.almuerzo) || !platoValido(m.cena)) return false;
+  if(!m.snacks.every(platoValido)) return false;
+  return Number.isFinite(m.totalKcal) && Number.isFinite(m.totalProt);
+}
 function obtenerOGenerarMenu(result, fechaKey, forzarNuevo){
   cloudState.menuHistory = cloudState.menuHistory || {};
   if(forzarNuevo) delete cloudState.menuHistory[fechaKey];
-  if(cloudState.menuHistory[fechaKey]) return cloudState.menuHistory[fechaKey];
+  const guardado = cloudState.menuHistory[fechaKey];
+  if(guardado && menuValido(guardado)) return guardado;
   const menu = generarMenuNuevo(result, fechaKey);
   cloudState.menuHistory[fechaKey] = menu;
   limpiarHistorialViejo();
