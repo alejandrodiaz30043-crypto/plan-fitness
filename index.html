@@ -33,16 +33,13 @@
   --bg:#12161d; --surface:#1b212b; --surface-2:#232a35; --line:#323b48;
   --text:#f1ede4; --text-dim:#b9c0cb; --coral:#ff6b4a; --sage:#8fb8a4;
   --slate:#5b6577; --gold:#e8b34a; --violet:#9b8cf2; --on-accent:#1a1108; --radius:14px;
-  --lvl0-bg:#31463d; --lvl0-text:#a8d4bb; --lvl1-bg:#463823; --lvl1-text:#f0c161; --lvl2-bg:#4a2620; --lvl2-text:#ff9c81;
 }
 html[data-theme="light"]{
   --bg:#f5f3ef; --surface:#ffffff; --surface-2:#f0eee8; --line:#ddd8ce;
   --text:#1c2128; --text-dim:#5b6472; --coral:#c23c14; --sage:#3f7a5c;
   --slate:#586170; --gold:#8a5c08; --violet:#5d4bb0; --on-accent:#ffffff;
-  --lvl0-bg:#dbefe1; --lvl0-text:#1c5f3d; --lvl1-bg:#faead0; --lvl1-text:#7a4e05; --lvl2-bg:#fcdfd6; --lvl2-text:#a3300f;
 }
 *{box-sizing:border-box;}
-dialog{color:inherit;}
 html,body{margin:0;padding:0;}
 menu,ul,ol{list-style:none;margin:0;padding:0;}
 fieldset{border:0;margin:0;padding:0;min-width:0;}
@@ -59,9 +56,9 @@ header.top::after{content:"";position:absolute;right:-40px;top:-40px;width:180px
 h1.title{font-size:28px;margin:0 0 4px;}
 .subtitle{color:var(--text-dim);font-size:14px;margin:0;}
 .today-cta{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:relative;}
-.today-btn{background:var(--coral);color:var(--on-accent);border:none;border-radius:999px;padding:7px 14px;font-family:'Sora',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;filter:saturate(.82) brightness(.97);}
-.today-btn:hover{filter:saturate(.9) brightness(1.03);}
-.install-btn{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-family:'Sora',sans-serif;font-weight:600;font-size:11.5px;cursor:pointer;}
+.today-btn{background:var(--coral);color:var(--on-accent);border:none;border-radius:999px;padding:9px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;}
+.today-btn:hover{filter:brightness(1.08);}
+.install-btn{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
 .install-btn:hover{border-color:var(--coral);color:var(--coral);}
 .install-btn[hidden]{display:none;}
 
@@ -87,9 +84,11 @@ h1.title{font-size:28px;margin:0 0 4px;}
 .auth-msg{display:block;min-height:18px;font-size:13px;color:var(--coral);margin-bottom:10px;}
 .auth-submit{width:100%;}
 .auth-switch{margin:16px 0 0;font-size:13.5px;color:var(--text-dim);text-align:center;}
+.trainer-link{font-size:12.5px;}
+.build-stamp-auth{font-size:10.5px;opacity:.6;margin-top:20px;}
 .link-btn{background:none;border:none;color:var(--coral);font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;padding:0;text-decoration:underline;}
 .streakbar{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:12px;display:flex;align-items:center;gap:6px;}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;display:flex;align-items:center;gap:6px;}
 .chip .num{font-family:'Space Mono',monospace;color:var(--coral);font-weight:600;}
 
 .mode-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center;}
@@ -135,7 +134,7 @@ section.view.active{display:block;}
 .daycell .check{position:absolute;top:5px;right:5px;width:14px;height:14px;border-radius:50%;background:var(--gold);display:none;align-items:center;justify-content:center;font-size:9px;color:var(--on-accent);}
 .daycell.done .check{display:flex;}
 
-dialog#overlay,dialog#glossaryDialog{position:fixed;inset:0;margin:0;width:100%;height:100%;max-width:100%;max-height:100%;border:none;background:rgba(10,12,16,0.72);justify-content:center;padding:30px 16px;overflow-y:auto;backdrop-filter:blur(3px);color:var(--text);}
+dialog#overlay,dialog#glossaryDialog{position:fixed;inset:0;margin:0;width:100%;height:100%;max-width:100%;max-height:100%;border:none;background:rgba(10,12,16,0.72);justify-content:center;padding:30px 16px;overflow-y:auto;backdrop-filter:blur(3px);}
 dialog#overlay[open],dialog#glossaryDialog[open]{display:flex;align-items:flex-start;}
 .glossary-list{margin:0;padding:0;}
 .glossary-list dt{font-family:'Sora',sans-serif;font-size:14.5px;color:var(--coral);margin:16px 0 4px;}
@@ -164,7 +163,7 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 .exercise .info .cue{font-size:12px;color:var(--text-dim);line-height:1.4;margin:0;}
 .exercise .spec{font-family:'Space Mono',monospace;text-align:right;font-size:13px;white-space:nowrap;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
 .lvltag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;margin-left:6px;font-weight:700;}
-.lvltag.l0{background:var(--lvl0-bg);color:var(--lvl0-text);} .lvltag.l1{background:var(--lvl1-bg);color:var(--lvl1-text);} .lvltag.l2{background:var(--lvl2-bg);color:var(--lvl2-text);}
+.lvltag.l0{background:#31463d;color:#8fb8a4;} .lvltag.l1{background:#463823;color:#e8b34a;} .lvltag.l2{background:#462424;color:#ff8a6b;}
 
 .circuit-box{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px;}
 .circuit-box .rounds{font-family:'Space Mono',monospace;color:var(--coral);font-weight:600;}
@@ -250,10 +249,6 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 .diet-result .tdee-line{display:block;text-align:center;font-size:12.5px;color:var(--text-dim);margin-bottom:12px;}
 .diet-result .tdee-line .mono{color:var(--text);}
 .diet-disclaimer{font-size:11.5px;color:var(--text-dim);opacity:.8;line-height:1.5;margin:0 0 6px;}
-.form-error{background:rgba(255,90,70,.12);border:1px solid var(--coral);color:var(--coral);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;margin:0 0 12px;}
-.form-error[hidden]{display:none;}
-.field-invalid{border-color:var(--coral)!important;}
-.goal-picker.field-invalid{outline:2px solid var(--coral);outline-offset:4px;border-radius:14px;}
 
 .menu-section{margin-bottom:18px;}
 .menu-section[hidden]{display:none;}
@@ -276,9 +271,9 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
   .exercise{grid-template-columns:48px 1fr auto;}
   .exercise .icon{width:48px;height:48px;}
   h1.title{font-size:23px;}
-  .today-btn,.install-btn{padding:6px 11px;font-size:11.5px;}
+  .today-btn,.install-btn{padding:7px 12px;font-size:12px;}
   .streakbar{gap:6px;}
-  .chip{padding:4px 9px;font-size:11px;}
+  .chip{padding:5px 10px;font-size:11.5px;}
   .mode-row{gap:6px;}
   .mode-toggle{padding:3px;}
   .mode-toggle button{padding:7px 12px;font-size:12.5px;}
@@ -307,7 +302,8 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
       <button class="today-btn auth-submit" id="authSubmitBtn" type="submit">Entrar</button>
     </form>
     <p class="auth-switch">¿No tienes cuenta? <button class="link-btn" id="authSwitchBtn" type="button">Crear una</button></p>
-    <p class="auth-switch auth-trainer-link">¿Eres entrenador o administrador de un gimnasio? <a class="link-btn" href="trainer.html">Inicia sesión aquí →</a></p>
+    <p class="auth-switch trainer-link">¿Eres entrenador o dueño de un gimnasio? <a class="link-btn" href="trainer.html">Entra por aquí</a></p>
+    <p class="auth-switch build-stamp-auth" id="buildStampAuth"></p>
   </article>
 </section>
 
@@ -429,7 +425,6 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <section class="goal-guide" id="goalGuide" aria-live="polite"></section>
 
     <h3 class="block-title">Calcula tu plan de calorías y macros</h3>
-    <p class="form-error" id="dietFormError" hidden></p>
     <form class="diet-form" id="dietForm">
       <p class="row"><label for="fPeso">Peso (kg)</label><input type="number" id="fPeso" min="30" max="300" step="0.1" placeholder="70" required></p>
       <p class="row"><label for="fEstatura">Estatura (cm)</label><input type="number" id="fEstatura" min="120" max="230" placeholder="170" required></p>
@@ -487,10 +482,20 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <dl class="glossary-list">
       <dt>Series x repeticiones (ej: 3x12-15)</dt>
       <dd>El primer número son las <strong>series</strong> (rondas) que haces del ejercicio. El segundo rango son las <strong>repeticiones</strong> que haces en cada serie. "3x12-15" significa: 3 series, entre 12 y 15 repeticiones cada una.</dd>
-      <dt>Niveles (básico / intermedio / avanzado)</dt>
+      <dt>Niveles del ejercicio (básico / intermedio / avanzado)</dt>
       <dd>Qué tan exigente es la versión del ejercicio que te toca ese mes. No es "tu nivel" como persona — es la dificultad de esa variante específica, y va subiendo sola con el tiempo.</dd>
+      <dt>Nivel de experiencia (principiante / intermedio / avanzado / experto)</dt>
+      <dd>Esto sí lo eliges tú, en ⚙️ Ajustes. Define en qué punto de la progresión arrancas — un experto empieza directo en los ejercicios más difíciles, sin tener que "ganárselos" con el tiempo.</dd>
       <dt>Circuito</dt>
       <dd>Varias estaciones/ejercicios seguidos, con un temporizador y poco descanso entre ellos, pensado para trabajar resistencia y cardio.</dd>
+      <dt>Isométrico</dt>
+      <dd>Un ejercicio donde el músculo se mantiene tensionado sin moverse (por ejemplo, sostener una posición varios segundos), en vez de hacer repeticiones de ida y vuelta.</dd>
+      <dt>Sobrecarga progresiva</dt>
+      <dd>La idea central detrás de por qué tus rutinas suben de dificultad cada cierto tiempo: para seguir mejorando, el cuerpo necesita un poco más de exigencia (peso, repeticiones o series) con el tiempo.</dd>
+      <dt>Agujetas (dolor muscular tardío)</dt>
+      <dd>El dolor o rigidez muscular que aparece 1-2 días después de entrenar, sobre todo si probaste un ejercicio nuevo o subiste la intensidad. Es normal dentro de un rango moderado; no es señal de que algo salió mal.</dd>
+      <dt>Racha</dt>
+      <dd>Cuántos días seguidos (sin saltarte ninguno) has marcado tu entreno como completado. Se reinicia a 0 si te saltas un día que tenías programado entrenar.</dd>
       <dt>Calorías (kcal)</dt>
       <dd>La unidad que mide la energía que aporta la comida. Tu cuerpo las usa para funcionar, moverte y hacer ejercicio.</dd>
       <dt>Mantenimiento (o TDEE)</dt>
@@ -499,22 +504,22 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
       <dd>Comer menos calorías de las que gastas (déficit) para bajar de peso, o más de las que gastas (superávit) para subir. La app lo calcula solo según tu objetivo.</dd>
       <dt>Macros (proteína, carbohidratos, grasas)</dt>
       <dd>Los tres tipos de nutrientes que aportan energía. La proteína ayuda a construir y proteger el músculo, los carbohidratos son la energía principal, y las grasas cumplen funciones hormonales y de salud.</dd>
-      <dt>Racha</dt>
-      <dd>Cuántos días seguidos has entrenado sin fallar. Si te saltas un día programado, la racha se reinicia — los días de descanso no la rompen.</dd>
-      <dt>Modo Casa / Gym</dt>
-      <dd>Cambia la versión de los ejercicios: "Casa" usa solo el peso de tu cuerpo, "Gym" agrega ejercicios con máquinas y pesas para cuando tengas acceso a un gimnasio.</dd>
-      <dt>Progresión automática</dt>
-      <dd>Cada semana y cada mes, la app sube un poco la exigencia (más repeticiones, más series, o una variante más difícil) sin que tengas que planearlo tú.</dd>
-      <dt>Check-in semanal</dt>
-      <dd>Un registro rápido de cómo te sentiste esa semana (energía, dificultad, dolor muscular) para llevar seguimiento de cómo vas, más allá de solo marcar si entrenaste.</dd>
+      <dt>Gramos por kilo (g/kg)</dt>
+      <dd>Una forma común de calcular cuánta proteína necesitas, multiplicando tu peso corporal por una cantidad fija (ej: 2g de proteína por cada kg que pesas).</dd>
+      <dt>Scoop</dt>
+      <dd>La medida (cuchara/cacito) que trae el envase de proteína en polvo. Como el tamaño varía un poco según la marca, en la app usamos ≈25g de proteína por scoop como referencia general.</dd>
+      <dt>Recomposición corporal</dt>
+      <dd>Bajar grasa y subir músculo al mismo tiempo. Es más lento que enfocarte en uno solo, pero es una buena meta para quien empieza o retoma el ejercicio tras un tiempo inactivo.</dd>
     </dl>
   </article>
 </dialog>
 
-<footer class="foot wrap" id="appFooter" hidden>Hecho a la medida — cada semana/mes suben las series, reps y también el nivel de los ejercicios. Tu progreso se guarda en tu cuenta.<small class="credits">© <time id="creditYear">2026</time> Alejandro Díaz Arrieta. Todos los derechos reservados.</small></footer>
+<footer class="foot wrap" id="appFooter" hidden>Hecho a la medida — cada semana/mes suben las series, reps y también el nivel de los ejercicios. Tu progreso se guarda en tu cuenta.<small class="credits">© <time id="creditYear">2026</time> Alejandro Díaz Arrieta. Todos los derechos reservados.</small><small class="credits" id="buildStamp"></small></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+const BUILD_VERSION = '2026-07-10-a';
+
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
@@ -1127,6 +1132,7 @@ document.getElementById('btnToday').addEventListener('click', ()=> openDay(new D
 document.getElementById('btnTheme').addEventListener('click', toggleTheme);
 document.getElementById('btnThemeAuth').addEventListener('click', toggleTheme);
 applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+document.getElementById('buildStampAuth').textContent = 'Versión: ' + BUILD_VERSION;
 document.getElementById('btnGlossary').addEventListener('click', ()=> document.getElementById('glossaryDialog').showModal());
 document.getElementById('closeGlossary').addEventListener('click', ()=> document.getElementById('glossaryDialog').close());
 document.getElementById('glossaryDialog').addEventListener('click', (e)=>{ if(e.target.id==='glossaryDialog') document.getElementById('glossaryDialog').close(); });
@@ -1640,31 +1646,8 @@ document.getElementById('calcDietBtn').addEventListener('click', ()=>{
   const edad = parseInt(document.getElementById('fEdad').value, 10);
   const sexo = document.getElementById('fSexo').value;
   const actividad = document.getElementById('fActividad').value;
-  const errorBox = document.getElementById('dietFormError');
-  const goalPicker = document.getElementById('goalPicker');
-  const fPeso = document.getElementById('fPeso');
-  const fEstatura = document.getElementById('fEstatura');
-  const fEdad = document.getElementById('fEdad');
-  [fPeso, fEstatura, fEdad].forEach(el => el.classList.remove('field-invalid'));
-  goalPicker.classList.remove('field-invalid');
-
-  if(!goalInput){
-    errorBox.textContent = '⚠️ Primero elige tu objetivo arriba (Pérdida de grasa, Ganancia muscular, etc.) antes de calcular.';
-    errorBox.hidden = false;
-    goalPicker.classList.add('field-invalid');
-    goalPicker.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-  if(!peso || !estatura || !edad){
-    errorBox.textContent = '⚠️ Completa peso, estatura y edad para calcular tu plan.';
-    errorBox.hidden = false;
-    if(!peso) fPeso.classList.add('field-invalid');
-    if(!estatura) fEstatura.classList.add('field-invalid');
-    if(!edad) fEdad.classList.add('field-invalid');
-    errorBox.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-  errorBox.hidden = true;
+  if(!goalInput){ alert('Primero elige tu objetivo arriba.'); return; }
+  if(!peso || !estatura || !edad){ alert('Completa peso, estatura y edad para calcular tu plan.'); return; }
   const profile = { peso, estatura, edad, sexo, actividad, objetivo: goalInput.value };
   setDietProfile(profile);
   renderDietResult(profile, calcularPlanNutricional(profile));
@@ -1712,6 +1695,7 @@ function startApp(){
   SELECTED_DAYS = cloudState.days;
   startDate = new Date(cloudState.start+'T00:00:00');
   document.getElementById('creditYear').textContent = new Date().getFullYear();
+  document.getElementById('buildStamp').textContent = 'Versión: ' + BUILD_VERSION;
   renderWeekdayLabels();
   applyModeUI();
   renderDayPicker();
