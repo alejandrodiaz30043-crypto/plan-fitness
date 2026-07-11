@@ -91,7 +91,7 @@ tbody tr:last-child td{border-bottom:none;}
     </thead>
     <tbody id="membersBody"></tbody>
   </table>
-  <p class="empty-msg" id="emptyMsg" hidden>Todavía no hay miembros asignados a tu gimnasio. Pídele al administrador que les asigne tu mismo <code>gym_id</code> desde Supabase.</p>
+  <p class="empty-msg" id="emptyMsg" hidden>Todavía no hay miembros en tu gimnasio. Comparte tu código de invitación para que se unan desde la app (⚙️ Ajustes → Gimnasio).</p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -103,6 +103,11 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 function localDateKey(d){
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
+}
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[c]));
 }
 function calcularRacha(log){
   log = log || {};
@@ -118,15 +123,19 @@ function calcularRacha(log){
 }
 
 async function onLogin(user){
-  const { data: mine, error } = await sb.from('user_data').select('is_trainer, gym_id').eq('user_id', user.id).maybeSingle();
-  if(error || !mine || !mine.is_trainer){
-    document.getElementById('authMsg').textContent = 'Esta cuenta no tiene acceso de entrenador. Pide que te lo activen desde Supabase.';
+  const { data: mine, error } = await sb.from('user_data').select('role, gym_id').eq('user_id', user.id).maybeSingle();
+  const esEntrenador = mine && (mine.role === 'trainer' || mine.role === 'owner');
+  if(error || !mine || !esEntrenador || !mine.gym_id){
+    document.getElementById('authMsg').textContent = 'Esta cuenta no tiene acceso de entrenador, o no pertenece a ningún gimnasio todavía.';
     await sb.auth.signOut();
     return;
   }
   document.getElementById('authScreen').hidden = true;
   document.getElementById('dashboard').hidden = false;
-  document.getElementById('gymLabel').textContent = 'GIMNASIO · ' + (mine.gym_id || 'sin nombre');
+
+  const { data: gymInfo } = await sb.rpc('mi_gym_info');
+  const info = Array.isArray(gymInfo) ? gymInfo[0] : gymInfo;
+  document.getElementById('gymLabel').textContent = 'GIMNASIO · ' + (info && info.nombre ? info.nombre : 'sin nombre');
 
   const { data: rows, error: err2 } = await sb.from('user_data').select('user_id, display_name, log, gym_id').eq('gym_id', mine.gym_id);
   if(err2 || !rows){ return; }
@@ -139,7 +148,7 @@ async function onLogin(user){
     .map(r => ({ ...r, calc: calcularRacha(r.log) }))
     .sort((a,b) => (b.calc.racha - a.calc.racha))
     .forEach(r => {
-      const nombre = r.display_name || `Miembro ...${r.user_id.slice(-4)}`;
+      const nombre = escapeHtml(r.display_name || `Miembro ...${r.user_id.slice(-4)}`);
       let estadoHtml, estadoClase;
       if(r.calc.ultima === null){
         estadoHtml = 'Sin actividad aún'; estadoClase = 'status-none';
@@ -149,7 +158,7 @@ async function onLogin(user){
         estadoHtml = '✓ Activo'; estadoClase = 'status-ok'; activos++;
       }
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${nombre}</td><td class="mono">${r.calc.racha} días</td><td>${r.calc.ultima || '—'}</td><td class="${estadoClase}">${estadoHtml}</td>`;
+      tr.innerHTML = `<td>${nombre}</td><td class="mono">${r.calc.racha} días</td><td>${escapeHtml(r.calc.ultima || '—')}</td><td class="${estadoClase}">${estadoHtml}</td>`;
       body.appendChild(tr);
     });
 
