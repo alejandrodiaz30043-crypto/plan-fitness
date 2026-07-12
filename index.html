@@ -534,7 +534,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-11-a';
+const BUILD_VERSION = '2026-07-12-a';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -1323,7 +1323,15 @@ function renderGoalList(){
     list.appendChild(li);
   });
   list.addEventListener('change', (e)=>{
-    if(e.target.name==='goal') renderGoalGuide(e.target.value);
+    if(e.target.name!=='goal') return;
+    renderGoalGuide(e.target.value);
+    const perfil = getDietProfile();
+    if(perfil && perfil.peso){
+      perfil.objetivo = e.target.value;
+      setDietProfile(perfil);
+      const result = calcularPlanNutricional(perfil);
+      renderDietResult(perfil, result, true); // true = forzar menú nuevo, el objetivo cambió
+    }
   });
 }
 function renderGoalGuide(key){
@@ -1591,7 +1599,7 @@ function generarMenuNuevo(result, fechaKey){
   }
   const totalKcal = desayuno.kcal + almuerzo.kcal + cena.kcal + snacks.reduce((s,x)=>s+x.kcal,0);
   const totalProt = desayuno.proteina + almuerzo.proteina + cena.proteina + snacks.reduce((s,x)=>s+x.proteina,0);
-  return { desayuno, almuerzo, cena, snacks, totalKcal, totalProt };
+  return { desayuno, almuerzo, cena, snacks, totalKcal, totalProt, caloriasObjetivo: calorias, proteinaObjetivo: proteina };
 }
 function limpiarHistorialViejo(){
   if(!cloudState || !cloudState.menuHistory) return;
@@ -1609,11 +1617,16 @@ function menuValido(m){
   if(!m.snacks.every(platoValido)) return false;
   return Number.isFinite(m.totalKcal) && Number.isFinite(m.totalProt);
 }
+function menuCoincideConObjetivo(m, result){
+  // si el objetivo cambió lo suficiente (más de ~30 kcal o 5g de proteína), el menú guardado quedó desactualizado
+  if(!Number.isFinite(m.caloriasObjetivo) || !Number.isFinite(m.proteinaObjetivo)) return false;
+  return Math.abs(m.caloriasObjetivo - result.calorias) <= 30 && Math.abs(m.proteinaObjetivo - result.proteina) <= 5;
+}
 function obtenerOGenerarMenu(result, fechaKey, forzarNuevo){
   cloudState.menuHistory = cloudState.menuHistory || {};
   if(forzarNuevo) delete cloudState.menuHistory[fechaKey];
   const guardado = cloudState.menuHistory[fechaKey];
-  if(guardado && menuValido(guardado)) return guardado;
+  if(guardado && menuValido(guardado) && menuCoincideConObjetivo(guardado, result)) return guardado;
   const menu = generarMenuNuevo(result, fechaKey);
   cloudState.menuHistory[fechaKey] = menu;
   limpiarHistorialViejo();
@@ -1628,8 +1641,8 @@ function itemsDeMenu(menu){
     ...menu.snacks.map((s,i)=>({ slot: menu.snacks.length>1 ? `Merienda ${i+1}` : 'Merienda', icono:'🍎', ...s }))
   ];
 }
-function renderMenu(result){
-  const menu = obtenerOGenerarMenu(result, todayStr(), false);
+function renderMenu(result, forzarNuevo){
+  const menu = obtenerOGenerarMenu(result, todayStr(), !!forzarNuevo);
   const list = document.getElementById('menuList');
   list.innerHTML = `<p class="menu-total">Total del menú: <output class="mono">${menu.totalKcal}</output> kcal (objetivo <output class="mono">${result.calorias}</output>) · <output class="mono">${menu.totalProt}g</output> de proteína (objetivo <output class="mono">${result.proteina}g</output>)</p>` +
     itemsDeMenu(menu).map(it => `<li class="meal-card">
@@ -1681,7 +1694,7 @@ document.getElementById('btnMenuHoy').addEventListener('click', ()=>{
   mostrarMenuEnModal(menu, result);
 });
 
-function renderDietResult(profile, result){
+function renderDietResult(profile, result, forzarMenuNuevo){
   const out = document.getElementById('dietResult');
   out.hidden = false;
   out.innerHTML = `<p class="tdee-line">Tu gasto calórico estimado (mantenimiento) es de <output class="mono">${result.tdee}</output> kcal/día</p>
@@ -1691,7 +1704,7 @@ function renderDietResult(profile, result){
       <li class="stat-card"><output class="big mono">${result.carbos} g</output><p class="label">Carbohidratos</p></li>
       <li class="stat-card"><output class="big mono">${result.grasas} g</output><p class="label">Grasas</p></li>
     </ul>`;
-  renderMenu(result);
+  renderMenu(result, forzarMenuNuevo);
 }
 function renderNutricion(){
   renderGoalList();
