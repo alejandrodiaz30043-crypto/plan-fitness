@@ -1886,7 +1886,8 @@ document.getElementById('authForm').addEventListener('submit', async (e)=>{
   msg.textContent = ''; btn.disabled = true;
   try{
     if(authMode==='signup'){
-      const { data, error } = await sb.auth.signUp({ email, password });
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: redirectTo } });
       if(error){ msg.textContent = traducirErrorAuth(error.message); return; }
       if(!data.session){ msg.textContent = 'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.'; return; }
     } else {
