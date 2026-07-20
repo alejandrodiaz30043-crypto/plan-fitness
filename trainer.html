@@ -8,11 +8,23 @@
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+(function(){
+  var saved = localStorage.getItem('pf-trainer-theme');
+  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  document.documentElement.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
+})();
+</script>
 <style>
 :root{
   --bg:#12161d; --surface:#1b212b; --surface-2:#232a35; --line:#323b48;
   --text:#f1ede4; --text-dim:#b9c0cb; --coral:#ff6b4a; --sage:#8fb8a4;
   --gold:#e8b34a; --on-accent:#1a1108; --radius:14px;
+}
+html[data-theme="light"]{
+  --bg:#f5f3ef; --surface:#ffffff; --surface-2:#f0eee8; --line:#ddd8ce;
+  --text:#1c2128; --text-dim:#5b6472; --coral:#c23c14; --sage:#3f7a5c;
+  --gold:#8a5c08; --on-accent:#ffffff;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -38,7 +50,9 @@ h1,h2,.display{font-family:'Sora',sans-serif;font-weight:700;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
 
 header.top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px;}
-.logout-btn{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:8px 16px;font-size:13px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.theme-btn,.logout-btn{background:transparent;border:1px solid var(--line);color:var(--text-dim);border-radius:8px;padding:6px 11px;font-size:12px;font-family:'Manrope',sans-serif;font-weight:600;cursor:pointer;}
+.theme-btn:hover,.logout-btn:hover{color:var(--text);border-color:var(--text-dim);}
 
 .invite-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 .invite-box .code{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--coral);letter-spacing:.06em;}
@@ -105,7 +119,10 @@ tbody tr:last-child td{border-bottom:none;}
       <p class="eyebrow" id="gymLabel">GIMNASIO</p>
       <h1 class="display" style="font-size:24px;margin:0;">Panel de entrenador</h1>
     </hgroup>
-    <button class="logout-btn" id="btnLogout" type="button">🚪 Salir</button>
+    <span class="header-actions">
+      <button class="theme-btn" id="btnTheme" type="button">🌙 Modo claro</button>
+      <button class="logout-btn" id="btnLogout" type="button">🚪 Salir</button>
+    </span>
   </header>
 
   <p class="invite-box">
@@ -129,11 +146,24 @@ tbody tr:last-child td{border-bottom:none;}
   <p class="empty-msg" id="emptyMsg" hidden>Todavía no hay miembros en tu gimnasio. Comparte tu código de invitación para que se unan desde la app (⚙️ Ajustes → Gimnasio).</p>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://ylctyarrmdqzqhozuscx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsY3R5YXJybWRxenFob3p1c2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjQxNDUsImV4cCI6MjA5OTA0MDE0NX0.0vyadmb1O_VhZ_7-x006Ht_8GWyUsNC4D2XFUbntuzM';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ============ TEMA CLARO / OSCURO ============ */
+function applyTrainerTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('btnTheme');
+  if(btn) btn.textContent = theme === 'light' ? '☀️ Modo oscuro' : '🌙 Modo claro';
+}
+document.getElementById('btnTheme').addEventListener('click', ()=>{
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  localStorage.setItem('pf-trainer-theme', next);
+  applyTrainerTheme(next);
+});
+applyTrainerTheme(document.documentElement.getAttribute('data-theme') || 'dark');
 
 function localDateKey(d){
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
@@ -144,15 +174,24 @@ function escapeHtml(str){
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
   }[c]));
 }
-function calcularRacha(log){
+function calcularRacha(log, days){
   log = log || {};
+  const diasEntreno = Array.isArray(days) && days.length ? days : [0,1,2,3,4,5,6];
   const fechas = Object.keys(log).filter(k=>log[k]).sort();
   if(!fechas.length) return { racha:0, ultima:null, diasDesde:null };
   const ultima = fechas[fechas.length-1];
-  let racha = 0;
-  const cursor = new Date(); cursor.setHours(0,0,0,0);
-  while(log[localDateKey(cursor)]){ racha++; cursor.setDate(cursor.getDate()-1); }
   const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const todayKey = localDateKey(hoy);
+  let racha = 0;
+  const cursor = new Date(hoy);
+  for(let i=0;i<400;i++){
+    const wd = (cursor.getDay()+6)%7; // 0=lunes...6=domingo, igual que en la app principal
+    const k = localDateKey(cursor);
+    if(!diasEntreno.includes(wd)){ cursor.setDate(cursor.getDate()-1); continue; } // día libre, no rompe la racha
+    if(log[k]){ racha++; cursor.setDate(cursor.getDate()-1); continue; }
+    if(k===todayKey){ cursor.setDate(cursor.getDate()-1); continue; } // hoy aún no cuenta como ruptura
+    break;
+  }
   const diasDesde = Math.round((hoy - new Date(ultima+'T00:00:00')) / 86400000);
   return { racha, ultima, diasDesde };
 }
@@ -171,7 +210,7 @@ async function mostrarDashboard(gymId){
   miRol = info ? info.role : null;
   document.getElementById('thAcciones').hidden = miRol !== 'owner';
 
-  const { data: rows, error: err2 } = await sb.from('user_data').select('user_id, display_name, log, gym_id, role').eq('gym_id', gymId);
+  const { data: rows, error: err2 } = await sb.from('user_data').select('user_id, display_name, log, gym_id, role, days').eq('gym_id', gymId);
   if(err2 || !rows){ return; }
 
   const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -179,7 +218,7 @@ async function mostrarDashboard(gymId){
   const body = document.getElementById('membersBody');
   body.innerHTML = '';
   rows
-    .map(r => ({ ...r, calc: calcularRacha(r.log) }))
+    .map(r => ({ ...r, calc: calcularRacha(r.log, r.days) }))
     .sort((a,b) => (b.calc.racha - a.calc.racha))
     .forEach(r => {
       const nombre = escapeHtml(r.display_name || `Miembro ...${r.user_id.slice(-4)}`);

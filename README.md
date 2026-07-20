@@ -31,18 +31,17 @@ La URL del proyecto y la llave pública (`anon key`) ya están puestas dentro de
 - El botón "Exportar progreso" (pestaña Progreso) sigue disponible como respaldo adicional.
 - Si cambias el contenido del sitio en el futuro, sube el número de versión en `sw.js` (`CACHE_NAME = 'plan-fitness-v2'`, etc.) para que los usuarios reciban la actualización en vez de la copia guardada.
 
-## Panel de entrenador (piloto para gimnasios) — opcional
+## Panel de entrenador / gimnasios (opcional)
 
-Archivo aparte: `trainer.html` — no modifica ni depende de cambios en `index.html`, es 100% independiente.
+Archivo aparte: `trainer.html` — comparte la misma cuenta y base de datos que `index.html`, pero es un archivo independiente.
 
-**Para activarlo:**
-1. Corre la sección "FASE PILOTO" al final de `supabase-schema.sql` (es aditiva, no borra ni cambia nada de lo que ya tienes).
-2. Desde Supabase → Table Editor → `user_data`, activa a la cuenta del entrenador:
-   - `is_trainer = true`
-   - `gym_id = 'nombre-del-gimnasio'` (cualquier texto, mismo valor para todo el gimnasio)
-3. Asígnale el mismo `gym_id` a cada miembro de ese gimnasio (déjalo en blanco para quienes no pertenezcan a ningún gimnasio — la app principal sigue funcionando igual para ellos).
-4. El entrenador entra en `https://tu-usuario.github.io/tu-repo/trainer.html` con su mismo correo y contraseña, y ve: total de miembros, cuántos están activos esta semana, cuántos llevan 3+ días sin entrenar (en riesgo), y una tabla con la racha y última actividad de cada uno.
+**Cómo funciona (self-service, sin tocar nada a mano en Supabase):**
+1. Corre `supabase-schema.sql` completo (crea la tabla `gyms`, la columna `role` en `user_data`, y las funciones necesarias — es seguro de re-correr, no borra nada).
+2. Cualquier persona entra en `https://tu-usuario.github.io/tu-repo/trainer.html` con su correo y contraseña. Si esa cuenta no pertenece a ningún gimnasio todavía, puede crear el suyo ahí mismo — se vuelve el **dueño** al instante y le aparece un código de invitación de 6 caracteres.
+3. Comparte ese código con sus miembros. Cada miembro lo ingresa desde la app principal (`index.html` → ⚙️ Ajustes → Gimnasio) para unirse.
+4. Desde `trainer.html`, el dueño ve: total de miembros, activos esta semana, en riesgo de abandono (3+ días sin entrenar), racha y rol de cada uno — y puede ascender a alguien a **entrenador**, regresarlo a miembro, o expulsarlo del gimnasio, todo desde botones en la tabla.
+5. Cualquier miembro/entrenador puede salir de su gimnasio por su cuenta desde Ajustes en `index.html`. El dueño no puede salir así (evita dejar un gimnasio sin dueño) — tendría que contactar soporte para transferir la propiedad.
 
-Esto es aditivo y de bajo riesgo: no cambia el comportamiento de la app para usuarios normales, ni siquiera si nunca corres esta parte del SQL.
+No hay que editar nada a mano en Table Editor — todo el flujo (crear, unirse, ascender, expulsar, salir) pasa por funciones ya validadas en el servidor.
 
 

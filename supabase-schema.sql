@@ -157,6 +157,9 @@ begin
   if v_caller_role = 'owner' then
     raise exception 'Eres dueño de un gimnasio — no puedes unirte a otro con un código. Contáctanos si necesitas ayuda.';
   end if;
+  if v_caller_role = 'trainer' then
+    raise exception 'Eres entrenador de un gimnasio — no puedes unirte a otro con un código. Sal de tu gimnasio actual primero si quieres cambiarte.';
+  end if;
 
   select * into v_gym from public.gyms where codigo_invitacion = upper(p_codigo);
   if not found then

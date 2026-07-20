@@ -1,4 +1,4 @@
-const CACHE_NAME = 'plan-fitness-2026-07-19-a';
+const CACHE_NAME = 'plan-fitness-2026-07-19-b';
 const APP_SHELL = [
   './',
   './index.html',

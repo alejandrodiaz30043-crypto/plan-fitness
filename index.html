@@ -220,7 +220,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 .heat-cell.rest{background:var(--slate);opacity:.4;border-color:transparent;}
 .heat-cell.done{background:var(--coral);border-color:var(--coral);}
 .heat-cell.missed{background:transparent;border-color:var(--line);}
-.heat-cell.future{background:transparent;border-style:dashed;opacity:.5;}
+.heat-cell.future,.heat-cell.before{background:transparent;border-style:dashed;opacity:.5;}
 .heatmap-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--text-dim);margin:0 0 24px;}
 .heatmap-legend .heat-cell{margin-left:10px;}
 .heatmap-legend .heat-cell:first-child{margin-left:0;}
@@ -577,9 +577,9 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <footer class="foot wrap" id="appFooter" hidden>Hecho a la medida — cada semana/mes suben las series, reps y también el nivel de los ejercicios. Tu progreso se guarda en tu cuenta.<small class="credits">© <time id="creditYear">2026</time> Alejandro Díaz Arrieta. Todos los derechos reservados.</small><small class="credits" id="buildStamp"></small></footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-19-a';
+const BUILD_VERSION = '2026-07-19-b';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -919,6 +919,11 @@ let timerInterval = null;
 const LVL_LABEL = ['básico','intermedio','avanzado','avanzado+'];
 
 function openDay(dObj){
+  // Si el modal se re-renderiza (p. ej. al marcar completado) con el temporizador del
+  // circuito corriendo, hay que apagarlo — si no, sigue pitando/vibrando en segundo
+  // plano aunque ya no se vea en pantalla, porque quedaría referenciando elementos del
+  // DOM que este re-render está a punto de reemplazar.
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
   const plan = dayPlanFor(dObj);
   const prog = progressionFor(dObj);
   const EX = activeEX();
@@ -1080,11 +1085,14 @@ function updateHeaderStats(){
   document.getElementById('streakNum').textContent = computeStreak(log);
 }
 function computeStreak(log){
-  let streak=0; let d=new Date();
+  let streak=0; let d=new Date(); d.setHours(0,0,0,0);
+  const todayKey = dateKey(d);
   for(let i=0;i<400;i++){
     const plan = dayPlanFor(d); const k=dateKey(d);
     if(plan.type==='descanso'){ d.setDate(d.getDate()-1); continue; }
-    if(log[k]){ streak++; d.setDate(d.getDate()-1); } else { break; }
+    if(log[k]){ streak++; d.setDate(d.getDate()-1); continue; }
+    if(k===todayKey){ d.setDate(d.getDate()-1); continue; } // hoy aún no cuenta como ruptura, solo se salta
+    break;
   }
   return streak;
 }
@@ -1093,6 +1101,7 @@ function renderHeatmap(){
   wrap.innerHTML = '';
   const log = getLog();
   const today = new Date(); today.setHours(0,0,0,0);
+  const inicio = mondayOf(startDate);
   const startMonday = mondayOf(today);
   startMonday.setDate(startMonday.getDate() - 11*7);
   for(let w=0; w<12; w++){
@@ -1101,13 +1110,14 @@ function renderHeatmap(){
       const k = dateKey(dt);
       const plan = dayPlanFor(dt);
       let status;
-      if(dt>today) status='future';
+      if(dt < inicio) status='before';
+      else if(dt>today) status='future';
       else if(plan.type==='descanso') status='rest';
       else if(log[k]) status='done';
       else status='missed';
       const cell = document.createElement('li');
       cell.className = 'heat-cell '+status;
-      const etiqueta = status==='done'?'Entrenado':status==='rest'?'Descanso':status==='missed'?'No entrenado':'Próximo';
+      const etiqueta = status==='done'?'Entrenado':status==='rest'?'Descanso':status==='missed'?'No entrenado':status==='before'?'Antes de empezar':'Próximo';
       cell.title = `${dt.getDate()} ${MONTHS[dt.getMonth()]} — ${etiqueta}`;
       wrap.appendChild(cell);
     }
