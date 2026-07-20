@@ -271,3 +271,24 @@ begin
   return true;
 end;
 $$;
+
+-- Borra todos los datos de la app del usuario que llama (calendario, racha, check-ins,
+-- notas, plan de nutrición). No borra la cuenta de acceso (auth.users) en sí — eso
+-- requiere privilegios de servidor que una función de base de datos normal no tiene;
+-- para borrarla también, hazlo manualmente desde Supabase → Authentication → Users,
+-- o automatízalo más adelante con una Edge Function.
+create or replace function public.eliminar_mis_datos()
+returns boolean
+language plpgsql security definer
+as $$
+declare
+  v_role text;
+begin
+  select role into v_role from public.user_data where user_id = auth.uid();
+  if v_role = 'owner' then
+    raise exception 'Eres dueño de un gimnasio — contáctanos para transferir la propiedad antes de eliminar tu cuenta.';
+  end if;
+  delete from public.user_data where user_id = auth.uid();
+  return true;
+end;
+$$;
