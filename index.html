@@ -93,6 +93,9 @@ h1.title{font-size:28px;margin:0 0 4px;}
 .trainer-link{font-size:12.5px;}
 .build-stamp-auth{font-size:10.5px;opacity:.6;margin-top:20px;}
 .link-btn{background:none;border:none;color:var(--coral);font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;padding:0;text-decoration:underline;}
+.link-btn.muted{color:var(--text-dim);font-weight:600;font-size:12.5px;}
+.link-btn.muted:hover{color:var(--text);}
+.auth-forgot{margin:-8px 0 14px;text-align:right;}
 .streakbar{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
 .chip{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:5px 10px;font-size:11.5px;color:var(--text-dim);display:flex;align-items:center;gap:5px;}
 .chip .num{font-family:'Space Mono',monospace;color:var(--coral);font-weight:600;}
@@ -231,6 +234,11 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 .chart-legend .dot-legend.bar{background:var(--coral);}
 .chart-legend .dot-legend.line{background:var(--gold);border-radius:50%;}
 
+.coach-card{margin-bottom:18px;display:flex;flex-direction:column;gap:8px;}
+.coach-msg{margin:0;padding:11px 14px;border-radius:11px;font-size:13.5px;line-height:1.45;border:1px solid var(--line);background:var(--surface);}
+.coach-msg.aviso{border-color:color-mix(in srgb, var(--coral) 35%, var(--line));background:color-mix(in srgb, var(--coral) 10%, var(--surface));}
+.coach-msg.positivo{border-color:color-mix(in srgb, var(--sage) 35%, var(--line));background:color-mix(in srgb, var(--sage) 10%, var(--surface));}
+
 .backup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
 .backup-btn{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
 .backup-btn:hover{border-color:var(--coral);}
@@ -315,11 +323,12 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <p class="subtitle" id="authSubtitle">Entra para ver tu calendario, tu racha y tu plan de nutrición.</p>
     <form class="auth-form" id="authForm">
       <p class="row"><label for="authEmail">Correo</label><input type="email" id="authEmail" autocomplete="email" required></p>
-      <p class="row"><label for="authPassword">Contraseña</label><input type="password" id="authPassword" autocomplete="current-password" minlength="6" required></p>
+      <p class="row" id="authPasswordRow"><label for="authPassword">Contraseña</label><input type="password" id="authPassword" autocomplete="current-password" minlength="6" required></p>
+      <p class="auth-forgot" id="authForgotRow"><button class="link-btn muted" id="authForgotBtn" type="button">¿Olvidaste tu contraseña?</button></p>
       <output class="auth-msg" id="authMsg" aria-live="polite"></output>
       <button class="today-btn auth-submit" id="authSubmitBtn" type="submit">Entrar</button>
     </form>
-    <p class="auth-switch">¿No tienes cuenta? <button class="link-btn" id="authSwitchBtn" type="button">Crear una</button></p>
+    <p class="auth-switch" id="authSwitchRow">¿No tienes cuenta? <button class="link-btn" id="authSwitchBtn" type="button">Crear una</button></p>
     <p class="auth-switch trainer-link">¿Eres entrenador o dueño de un gimnasio? <a class="link-btn" href="trainer.html">Entra por aquí</a></p>
     <p class="auth-switch build-stamp-auth" id="buildStampAuth"></p>
   </article>
@@ -342,7 +351,19 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
   </article>
 </section>
 
-<header class="top wrap" id="appHeader" hidden>
+<section class="auth-screen" id="resetPasswordScreen" hidden>
+  <article class="auth-card">
+    <p class="eyebrow">PLAN FITNESS</p>
+    <h1 class="title">Nueva contraseña</h1>
+    <p class="subtitle">Escribe una contraseña nueva para tu cuenta.</p>
+    <form class="auth-form" id="resetPasswordForm">
+      <p class="row"><label for="newPassword">Nueva contraseña</label><input type="password" id="newPassword" autocomplete="new-password" minlength="6" required></p>
+      <p class="row"><label for="newPasswordConfirm">Repite la contraseña</label><input type="password" id="newPasswordConfirm" autocomplete="new-password" minlength="6" required></p>
+      <output class="auth-msg" id="resetPasswordMsg" aria-live="polite"></output>
+      <button class="today-btn auth-submit" id="resetPasswordBtn" type="submit">Guardar contraseña</button>
+    </form>
+  </article>
+</section>
     <p class="eyebrow" id="eyebrowText">Sin equipo · 40+ min/día</p>
     <h1 class="title">Plan Fitness</h1>
     <p class="subtitle" id="subtitleText">Piernas, tren superior, core y cardio — con progresión automática que cambia de ejercicios con el tiempo.</p>
@@ -383,6 +404,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
       <p class="stitle" style="margin-top:18px;">Gimnasio</p>
       <p class="settings-note" id="gymStatus">Cargando...</p>
+      <button class="calc-btn" id="btnSalirGym" type="button" hidden>Salir del gimnasio</button>
       <form class="gym-form" id="gymForm">
         <p class="row"><label for="gymCodigoInput">Código de invitación</label><input type="text" id="gymCodigoInput" maxlength="6" placeholder="Ej: 3F9A1B" autocomplete="off"></p>
         <button class="calc-btn" id="btnUnirseGym" type="submit">Unirme al gimnasio</button>
@@ -402,6 +424,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
   </nav>
 
   <section class="view active" id="view-calendario">
+    <div class="coach-card" id="coachCard" hidden></div>
     <header class="cal-head">
       <h2 id="calMonthLabel" class="display">Julio 2026</h2>
       <menu class="cal-nav"><li><button id="prevMonth" type="button">←</button></li><li><button id="nextMonth" type="button">→</button></li></menu>
@@ -556,7 +579,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-18-e';
+const BUILD_VERSION = '2026-07-19-a';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -1091,11 +1114,83 @@ function renderHeatmap(){
   }
 }
 /* ============ GRÁFICO DE PROGRESO SEMANAL (adherencia + energía) ============ */
-function renderProgressChart(){
-  const wrap = document.getElementById('progressChartWrap');
-  const svg = document.getElementById('progressChart');
-  const emptyMsg = document.getElementById('progressChartEmpty');
-  if(!wrap || !svg || !emptyMsg) return;
+/* ============ COACH (insights automáticos, basado en reglas — sin API externa) ============ */
+function generarInsightsCoach(){
+  const stats = calcularEstadisticasSemanales(6); // últimas 6 semanas
+  const log = getLog();
+  const insights = []; // { tipo: 'aviso' | 'positivo', texto }
+
+  const hayDatos = stats.some(s => s.adherence !== null || s.energia !== null);
+  if(!hayDatos) return insights;
+
+  const semanaActual = stats[stats.length - 1];
+  const semanasPrevias = stats.slice(0, -1);
+
+  // 1) Racha alta — refuerzo positivo
+  const racha = computeStreak(log);
+  if(racha >= 14){
+    insights.push({ tipo:'positivo', texto:`🔥 Llevas ${racha} días seguidos entrenando. Vas muy firme.` });
+  } else if(racha >= 7){
+    insights.push({ tipo:'positivo', texto:`🔥 Ya son ${racha} días seguidos — buena racha.` });
+  }
+
+  // 2) Energía reportada en baja, y bajando respecto a semanas previas
+  const energiasPrevias = semanasPrevias.map(s => s.energia).filter(e => e !== null);
+  const promedioEnergiaPrevia = energiasPrevias.length ? energiasPrevias.reduce((a,b)=>a+b,0) / energiasPrevias.length : null;
+  if(semanaActual.energia !== null && semanaActual.energia <= 2 && promedioEnergiaPrevia !== null && (promedioEnergiaPrevia - semanaActual.energia) >= 1){
+    insights.push({ tipo:'aviso', texto:'⚡ Reportaste poca energía esta semana. Podrías bajar un poco la intensidad o meter un día extra de descanso.' });
+  }
+
+  // 3) Dolor muscular alto esta semana
+  if(semanaActual.dolor !== null && semanaActual.dolor >= 4){
+    insights.push({ tipo:'aviso', texto:'🩹 Marcaste bastante dolor muscular esta semana. Es normal dentro de un rango, pero si no baja, considera un día extra de descanso.' });
+  }
+
+  // 4) Adherencia cayendo fuerte respecto al promedio previo
+  const adherenciasPrevias = semanasPrevias.map(s => s.adherence).filter(a => a !== null);
+  const promedioAdherenciaPrevia = adherenciasPrevias.length ? adherenciasPrevias.reduce((a,b)=>a+b,0) / adherenciasPrevias.length : null;
+  if(semanaActual.adherence !== null && promedioAdherenciaPrevia !== null && (promedioAdherenciaPrevia - semanaActual.adherence) >= 30){
+    insights.push({ tipo:'aviso', texto:'📉 Esta semana entrenaste menos que lo usual. No pasa nada, un solo entreno ya te vuelve a enganchar.' });
+  }
+
+  // 5) Dificultad percibida consistentemente muy alta (últimas 3 semanas)
+  const dificultadesRecientes = stats.slice(-3).map(s => s.dificultad).filter(d => d !== null);
+  if(dificultadesRecientes.length >= 2){
+    const promedioDificultad = dificultadesRecientes.reduce((a,b)=>a+b,0) / dificultadesRecientes.length;
+    if(promedioDificultad >= 4.5){
+      insights.push({ tipo:'aviso', texto:'💪 Llevas varias semanas marcando el plan como muy exigente. Si se siente demasiado, puedes bajar el nivel desde Ajustes.' });
+    }
+  }
+
+  // 6) Sin actividad reciente
+  let ultimaFecha = null;
+  Object.keys(log).forEach(k => { if(!ultimaFecha || k > ultimaFecha) ultimaFecha = k; });
+  if(ultimaFecha){
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const dias = Math.round((hoy - new Date(ultimaFecha + 'T00:00:00')) / 86400000);
+    if(dias >= 5){
+      insights.push({ tipo:'aviso', texto:`👋 Van ${dias} días sin marcar un entreno. Retomar hoy, aunque sea con algo corto, ya cuenta.` });
+    }
+  }
+
+  // 7) Si no hay ningún aviso y va bien, un mensaje de refuerzo genérico
+  if(insights.length === 0 && semanaActual.adherence !== null && semanaActual.adherence >= 80){
+    insights.push({ tipo:'positivo', texto:'✅ Vas muy bien esta semana — sigue así.' });
+  }
+
+  // Priorizar avisos sobre mensajes positivos, máximo 2 para no saturar
+  insights.sort((a,b) => (a.tipo==='aviso'?0:1) - (b.tipo==='aviso'?0:1));
+  return insights.slice(0, 2);
+}
+function renderCoach(){
+  const wrap = document.getElementById('coachCard');
+  if(!wrap) return;
+  const insights = generarInsightsCoach();
+  if(insights.length === 0){ wrap.hidden = true; wrap.innerHTML = ''; return; }
+  wrap.hidden = false;
+  wrap.innerHTML = insights.map(i => `<p class="coach-msg ${i.tipo}">${i.texto}</p>`).join('');
+}
+function calcularEstadisticasSemanales(limite){
   const log = getLog();
   const checkins = getCheckins();
   const today = new Date(); today.setHours(0,0,0,0);
@@ -1106,9 +1201,9 @@ function renderProgressChart(){
   for(let d = new Date(firstMonday); d <= curMonday; d.setDate(d.getDate() + 7)){
     allWeeks.push(new Date(d));
   }
-  const weeks = allWeeks.slice(-12); // últimas 12 semanas, igual que el heatmap
+  const weeks = limite ? allWeeks.slice(-limite) : allWeeks;
 
-  const stats = weeks.map(monday=>{
+  return weeks.map(monday=>{
     let planned = 0, done = 0;
     for(let i=0;i<7;i++){
       const dt = new Date(monday); dt.setDate(dt.getDate() + i);
@@ -1119,9 +1214,23 @@ function renderProgressChart(){
       if(log[dateKey(dt)]) done++;
     }
     const wk = dateKey(monday);
-    const energia = (checkins[wk] && checkins[wk].energia) ? checkins[wk].energia : null;
-    return { monday, adherence: planned ? Math.round(done/planned*100) : null, energia };
+    const c = checkins[wk] || null;
+    return {
+      monday,
+      adherence: planned ? Math.round(done/planned*100) : null,
+      energia: (c && c.energia) ? c.energia : null,
+      dificultad: (c && c.dificultad) ? c.dificultad : null,
+      dolor: (c && c.dolor) ? c.dolor : null,
+    };
   });
+}
+
+function renderProgressChart(){
+  const wrap = document.getElementById('progressChartWrap');
+  const svg = document.getElementById('progressChart');
+  const emptyMsg = document.getElementById('progressChartEmpty');
+  if(!wrap || !svg || !emptyMsg) return;
+  const stats = calcularEstadisticasSemanales(12); // últimas 12 semanas, igual que el heatmap
 
   const hayDatos = stats.some(s => s.adherence !== null || s.energia !== null);
   if(!hayDatos){
@@ -1179,6 +1288,7 @@ function renderProgress(){
   document.getElementById('pWeek').textContent = curProg.label.replace('Semana','S').replace(' (nivel máximo)',' 🏔');
   renderHeatmap();
   renderProgressChart();
+  renderCoach();
   const checkins = getCheckins();
   const curWeekKey = dateKey(mondayOf(new Date()));
   document.querySelectorAll('.stars').forEach(starRow=>{
@@ -1318,19 +1428,39 @@ document.getElementById('btnSettings').addEventListener('click', ()=>{
 /* ============ GIMNASIO (self-service) ============ */
 async function renderGymSection(){
   const estado = document.getElementById('gymStatus');
+  const btnSalir = document.getElementById('btnSalirGym');
+  const gymForm = document.getElementById('gymForm');
   document.getElementById('displayNameInput').value = cloudState.displayName || '';
   try{
     const { data, error } = await sb.rpc('mi_gym_info');
     const info = Array.isArray(data) ? data[0] : data;
     if(error || !info || !info.nombre){
       estado.textContent = 'No perteneces a ningún gimnasio todavía. Si tu entrenador te dio un código, pégalo abajo.';
+      btnSalir.hidden = true;
+      gymForm.hidden = false;
       return;
     }
     estado.textContent = `Perteneces a: ${info.nombre}` + (info.role==='owner' ? ' (eres el dueño)' : '');
+    // El dueño no puede salir así — solo miembros/entrenadores. Tampoco tiene sentido
+    // mostrarle el formulario para unirse a otro gimnasio si ya pertenece a uno.
+    btnSalir.hidden = info.role === 'owner';
+    gymForm.hidden = true;
   } catch(e){
     estado.textContent = 'No perteneces a ningún gimnasio todavía. Si tu entrenador te dio un código, pégalo abajo.';
+    btnSalir.hidden = true;
+    gymForm.hidden = false;
   }
 }
+document.getElementById('btnSalirGym').addEventListener('click', async ()=>{
+  if(!confirm('¿Seguro que quieres salir de tu gimnasio? Tu progreso no se pierde, solo dejas de aparecer en el panel de tu entrenador.')) return;
+  try{
+    const { error } = await sb.rpc('salir_de_gym');
+    if(error){ alert(error.message || 'No se pudo salir del gimnasio. Intenta de nuevo.'); return; }
+    renderGymSection();
+  } catch(e){
+    alert('No se pudo salir del gimnasio. Intenta de nuevo.');
+  }
+});
 document.getElementById('gymForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const codigo = document.getElementById('gymCodigoInput').value.trim();
@@ -1339,7 +1469,7 @@ document.getElementById('gymForm').addEventListener('submit', async (e)=>{
   if(!codigo){ msg.textContent = 'Escribe el código que te dio tu entrenador.'; return; }
   try{
     const { data, error } = await sb.rpc('unirse_a_gym', { p_codigo: codigo });
-    if(error){ msg.textContent = 'Ese código no es válido. Revísalo con tu entrenador.'; return; }
+    if(error){ msg.textContent = error.message || 'Ese código no es válido. Revísalo con tu entrenador.'; return; }
     msg.textContent = '✓ Te uniste correctamente.';
     document.getElementById('gymCodigoInput').value = '';
     renderGymSection();
@@ -1882,6 +2012,7 @@ function startApp(){
   renderDayPicker();
   renderNivelPicker();
   renderCalendar();
+  renderCoach();
   renderProgress();
   renderNutricion();
   document.getElementById('appHeader').hidden = false;
@@ -1944,6 +2075,7 @@ async function onLogin(user){
     await persistNow();
   }
   document.getElementById('authScreen').hidden = true;
+  document.getElementById('resetPasswordScreen').hidden = true;
   if(cloudState.theme){ applyTheme(cloudState.theme); }
   if(!cloudState.onboarded){ showOnboarding(); } else { startApp(); }
 }
@@ -1954,10 +2086,14 @@ function onLogout(){
   document.getElementById('appMain').hidden = true;
   document.getElementById('appFooter').hidden = true;
   document.getElementById('onboardScreen').hidden = true;
+  document.getElementById('resetPasswordScreen').hidden = true;
   document.getElementById('overlay').open && document.getElementById('overlay').close();
   document.getElementById('authScreen').hidden = false;
   document.getElementById('authEmail').value = '';
   document.getElementById('authPassword').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('newPasswordConfirm').value = '';
+  if(typeof setAuthMode === 'function') setAuthMode('login');
 }
 
 function traducirErrorAuth(msg){
@@ -1969,14 +2105,43 @@ function traducirErrorAuth(msg){
 }
 
 let authMode = 'login';
-document.getElementById('authSwitchBtn').addEventListener('click', ()=>{
-  authMode = authMode==='login' ? 'signup' : 'login';
-  document.getElementById('authTitle').textContent = authMode==='login' ? 'Inicia sesión' : 'Crea tu cuenta';
-  document.getElementById('authSubmitBtn').textContent = authMode==='login' ? 'Entrar' : 'Crear cuenta';
-  document.getElementById('authSwitchBtn').textContent = authMode==='login' ? 'Crear una' : 'Inicia sesión';
-  document.querySelector('.auth-switch').firstChild.textContent = authMode==='login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? ';
+function setAuthMode(mode){
+  authMode = mode;
+  const title = document.getElementById('authTitle');
+  const subtitle = document.getElementById('authSubtitle');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  const passwordRow = document.getElementById('authPasswordRow');
+  const passwordInput = document.getElementById('authPassword');
+  const forgotRow = document.getElementById('authForgotRow');
+  const switchRow = document.getElementById('authSwitchRow');
   document.getElementById('authMsg').textContent = '';
+  if(mode === 'recover'){
+    title.textContent = 'Recuperar contraseña';
+    subtitle.textContent = 'Escribe tu correo y te enviamos un enlace para poner una contraseña nueva.';
+    submitBtn.textContent = 'Enviar enlace';
+    passwordRow.hidden = true;
+    passwordInput.required = false;
+    switchRow.hidden = true;
+    forgotRow.innerHTML = `<button class="link-btn muted" id="authForgotBtn" type="button">Volver a iniciar sesión</button>`;
+  } else {
+    title.textContent = mode==='login' ? 'Inicia sesión' : 'Crea tu cuenta';
+    subtitle.textContent = 'Entra para ver tu calendario, tu racha y tu plan de nutrición.';
+    submitBtn.textContent = mode==='login' ? 'Entrar' : 'Crear cuenta';
+    passwordRow.hidden = false;
+    passwordInput.required = true;
+    switchRow.hidden = false;
+    document.getElementById('authSwitchBtn').textContent = mode==='login' ? 'Crear una' : 'Inicia sesión';
+    switchRow.firstChild.textContent = mode==='login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? ';
+    forgotRow.innerHTML = `<button class="link-btn muted" id="authForgotBtn" type="button">¿Olvidaste tu contraseña?</button>`;
+  }
+  document.getElementById('authForgotBtn').addEventListener('click', ()=>{
+    setAuthMode(authMode === 'recover' ? 'login' : 'recover');
+  });
+}
+document.getElementById('authSwitchBtn').addEventListener('click', ()=>{
+  setAuthMode(authMode==='login' ? 'signup' : 'login');
 });
+setAuthMode('login');
 document.getElementById('authForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const email = document.getElementById('authEmail').value.trim();
@@ -1985,8 +2150,14 @@ document.getElementById('authForm').addEventListener('submit', async (e)=>{
   const btn = document.getElementById('authSubmitBtn');
   msg.textContent = ''; btn.disabled = true;
   try{
+    const redirectTo = window.location.origin + window.location.pathname;
+    if(authMode==='recover'){
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+      if(error){ msg.textContent = traducirErrorAuth(error.message); return; }
+      msg.textContent = 'Si ese correo tiene una cuenta, te enviamos un enlace para poner una contraseña nueva. Revisa tu bandeja de entrada.';
+      return;
+    }
     if(authMode==='signup'){
-      const redirectTo = window.location.origin + window.location.pathname;
       const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: redirectTo } });
       if(error){ msg.textContent = traducirErrorAuth(error.message); return; }
       if(!data.session){ msg.textContent = 'Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.'; return; }
@@ -2002,7 +2173,34 @@ document.getElementById('btnLogout').addEventListener('click', async ()=>{
   await sb.auth.signOut();
 });
 
+document.getElementById('resetPasswordForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const p1 = document.getElementById('newPassword').value;
+  const p2 = document.getElementById('newPasswordConfirm').value;
+  const msg = document.getElementById('resetPasswordMsg');
+  const btn = document.getElementById('resetPasswordBtn');
+  msg.textContent = '';
+  if(p1 !== p2){ msg.textContent = 'Las contraseñas no coinciden.'; return; }
+  if(p1.length < 6){ msg.textContent = 'La contraseña debe tener al menos 6 caracteres.'; return; }
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if(error){ msg.textContent = traducirErrorAuth(error.message); return; }
+    msg.textContent = '✓ Contraseña actualizada. Entrando…';
+    setTimeout(()=>{ document.getElementById('resetPasswordScreen').hidden = true; }, 900);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 sb.auth.onAuthStateChange((event, session)=>{
+  if(event === 'PASSWORD_RECOVERY'){
+    // El usuario llegó desde el enlace de recuperación del correo — mostramos el
+    // formulario de nueva contraseña en vez de dejarlo entrar directo a la app.
+    document.getElementById('authScreen').hidden = true;
+    document.getElementById('resetPasswordScreen').hidden = false;
+    return;
+  }
   if(session && session.user){
     // Este evento también se dispara en TOKEN_REFRESHED (Supabase renueva el token
     // automáticamente cada cierto tiempo) y en la sesión inicial. Si ya tenemos cargado

@@ -59,6 +59,13 @@ tbody tr:last-child td{border-bottom:none;}
 .status-risk{color:var(--coral);font-weight:700;}
 .status-none{color:var(--text-dim);}
 .empty-msg{color:var(--text-dim);font-size:14px;padding:30px 0;text-align:center;}
+.role-badge{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);}
+.role-badge.trainer{color:var(--gold);}
+.role-badge.owner{color:var(--coral);}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.action-btn{background:transparent;border:1px solid var(--line);color:var(--text-dim);border-radius:7px;padding:5px 9px;font-size:11.5px;font-family:'Manrope',sans-serif;font-weight:600;cursor:pointer;}
+.action-btn:hover{color:var(--text);border-color:var(--text-dim);}
+.action-btn.danger:hover{color:var(--coral);border-color:var(--coral);}
 </style>
 </head>
 <body>
@@ -115,7 +122,7 @@ tbody tr:last-child td{border-bottom:none;}
   <table id="membersTable">
     <caption>Miembros de tu gimnasio</caption>
     <thead>
-      <tr><th>Miembro</th><th>Racha actual</th><th>Última actividad</th><th>Estado</th></tr>
+      <tr><th>Miembro</th><th>Rol</th><th>Racha actual</th><th>Última actividad</th><th>Estado</th><th id="thAcciones" hidden>Acciones</th></tr>
     </thead>
     <tbody id="membersBody"></tbody>
   </table>
@@ -150,6 +157,8 @@ function calcularRacha(log){
   return { racha, ultima, diasDesde };
 }
 
+let miRol = null;
+
 async function mostrarDashboard(gymId){
   document.getElementById('authScreen').hidden = true;
   document.getElementById('onboardScreen').hidden = true;
@@ -159,8 +168,10 @@ async function mostrarDashboard(gymId){
   const info = Array.isArray(gymInfo) ? gymInfo[0] : gymInfo;
   document.getElementById('gymLabel').textContent = 'GIMNASIO · ' + (info && info.nombre ? info.nombre : 'sin nombre');
   document.getElementById('inviteCode').textContent = (info && info.codigo_invitacion) ? info.codigo_invitacion : '——————';
+  miRol = info ? info.role : null;
+  document.getElementById('thAcciones').hidden = miRol !== 'owner';
 
-  const { data: rows, error: err2 } = await sb.from('user_data').select('user_id, display_name, log, gym_id').eq('gym_id', gymId);
+  const { data: rows, error: err2 } = await sb.from('user_data').select('user_id, display_name, log, gym_id, role').eq('gym_id', gymId);
   if(err2 || !rows){ return; }
 
   const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -180,8 +191,20 @@ async function mostrarDashboard(gymId){
       } else {
         estadoHtml = '✓ Activo'; estadoClase = 'status-ok'; activos++;
       }
+      const rolLabel = r.role === 'owner' ? 'Dueño' : r.role === 'trainer' ? 'Entrenador' : 'Miembro';
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${nombre}</td><td class="mono">${r.calc.racha} días</td><td>${escapeHtml(r.calc.ultima || '—')}</td><td class="${estadoClase}">${estadoHtml}</td>`;
+      let accionesHtml = '';
+      if(miRol === 'owner' && r.role !== 'owner'){
+        accionesHtml = `<td><span class="row-actions">` +
+          (r.role === 'trainer'
+            ? `<button class="action-btn" data-action="degradar" data-id="${r.user_id}" type="button">Quitar entrenador</button>`
+            : `<button class="action-btn" data-action="promover" data-id="${r.user_id}" type="button">Hacer entrenador</button>`) +
+          `<button class="action-btn danger" data-action="expulsar" data-id="${r.user_id}" data-nombre="${nombre}" type="button">Expulsar</button>` +
+          `</span></td>`;
+      } else if(miRol === 'owner'){
+        accionesHtml = `<td></td>`;
+      }
+      tr.innerHTML = `<td>${nombre}</td><td><span class="role-badge ${r.role}">${rolLabel}</span></td><td class="mono">${r.calc.racha} días</td><td>${escapeHtml(r.calc.ultima || '—')}</td><td class="${estadoClase}">${estadoHtml}</td>${accionesHtml}`;
       body.appendChild(tr);
     });
 
@@ -190,6 +213,23 @@ async function mostrarDashboard(gymId){
   document.getElementById('statRiesgo').textContent = riesgo;
   document.getElementById('membersTable').hidden = rows.length === 0;
   document.getElementById('emptyMsg').hidden = rows.length !== 0;
+
+  document.getElementById('membersBody').querySelectorAll('.action-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> manejarAccionMiembro(btn, gymId));
+  });
+}
+
+async function manejarAccionMiembro(btn, gymId){
+  const accion = btn.dataset.action;
+  const memberId = btn.dataset.id;
+  if(accion === 'expulsar'){
+    if(!confirm(`¿Expulsar a ${btn.dataset.nombre} de tu gimnasio? Su cuenta y progreso no se borran, solo deja de pertenecer al gimnasio.`)) return;
+  }
+  const rpc = accion === 'promover' ? 'promover_entrenador' : accion === 'degradar' ? 'degradar_a_miembro' : 'expulsar_miembro';
+  btn.disabled = true;
+  const { error } = await sb.rpc(rpc, { p_member_id: memberId });
+  if(error){ alert('No se pudo completar la acción: ' + error.message); btn.disabled = false; return; }
+  mostrarDashboard(gymId);
 }
 async function onLogin(user){
   const { data: mine, error } = await sb.from('user_data').select('role, gym_id').eq('user_id', user.id).maybeSingle();
@@ -227,7 +267,7 @@ document.getElementById('crearGymForm').addEventListener('submit', async (e) => 
   msg.textContent = '';
   if(!nombre){ msg.textContent = 'Escribe un nombre para tu gimnasio.'; return; }
   const { data, error } = await sb.rpc('crear_gym', { p_nombre: nombre });
-  if(error){ msg.textContent = 'No se pudo crear el gimnasio. Intenta de nuevo.'; return; }
+  if(error){ msg.textContent = error.message || 'No se pudo crear el gimnasio. Intenta de nuevo.'; return; }
   const gym = Array.isArray(data) ? data[0] : data;
   mostrarDashboard(gym.id);
 });
