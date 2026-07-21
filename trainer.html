@@ -303,12 +303,18 @@ document.getElementById('crearGymForm').addEventListener('submit', async (e) => 
   e.preventDefault();
   const nombre = document.getElementById('gymNombreInput').value.trim();
   const msg = document.getElementById('crearGymMsg');
+  const submitBtn = e.target.querySelector('button[type="submit"]');
   msg.textContent = '';
   if(!nombre){ msg.textContent = 'Escribe un nombre para tu gimnasio.'; return; }
-  const { data, error } = await sb.rpc('crear_gym', { p_nombre: nombre });
-  if(error){ msg.textContent = error.message || 'No se pudo crear el gimnasio. Intenta de nuevo.'; return; }
-  const gym = Array.isArray(data) ? data[0] : data;
-  mostrarDashboard(gym.id);
+  submitBtn.disabled = true;
+  try{
+    const { data, error } = await sb.rpc('crear_gym', { p_nombre: nombre });
+    if(error){ msg.textContent = error.message || 'No se pudo crear el gimnasio. Intenta de nuevo.'; return; }
+    const gym = Array.isArray(data) ? data[0] : data;
+    mostrarDashboard(gym.id);
+  } finally {
+    submitBtn.disabled = false;
+  }
 });
 document.getElementById('btnCerrarOnboard').addEventListener('click', async () => { await sb.auth.signOut(); });
 document.getElementById('btnLogout').addEventListener('click', async () => { await sb.auth.signOut(); });

@@ -170,6 +170,7 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 .exercise .info{margin:0;min-width:0;}
 .exercise .info .exname{display:block;font-size:14.5px;font-weight:700;font-family:'Manrope',sans-serif;margin:0 0 2px;}
 .exercise .info .cue{font-size:12px;color:var(--text-dim);line-height:1.4;margin:0;}
+.exercise .info .rotation-note{font-size:11px;color:var(--sage);line-height:1.4;margin:3px 0 0;}
 .exercise .spec{font-family:'Space Mono',monospace;text-align:right;font-size:13px;white-space:nowrap;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
 .lvltag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;margin-left:6px;font-weight:700;}
 .lvltag.l0{background:#31463d;color:#8fb8a4;} .lvltag.l1{background:#463823;color:#e8b34a;} .lvltag.l2{background:#462424;color:#ff8a6b;}
@@ -277,6 +278,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 .diet-result{display:block;margin-bottom:14px;}
 .diet-result[hidden]{display:none;}
 .diet-result .tdee-line{display:block;text-align:center;font-size:12.5px;color:var(--text-dim);margin-bottom:12px;}
+.diet-notice{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12px;line-height:1.5;color:var(--text-dim);margin:0 0 12px;}
 .diet-result .tdee-line .mono{color:var(--text);}
 .diet-disclaimer{font-size:11.5px;color:var(--text-dim);opacity:.8;line-height:1.5;margin:0 0 6px;}
 
@@ -436,7 +438,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <div class="coach-card" id="coachCard" hidden></div>
     <header class="cal-head">
       <h2 id="calMonthLabel" class="display">Julio 2026</h2>
-      <menu class="cal-nav"><li><button id="prevMonth" type="button">←</button></li><li><button id="nextMonth" type="button">→</button></li></menu>
+      <menu class="cal-nav"><li><button id="prevMonth" type="button" aria-label="Mes anterior">←</button></li><li><button id="nextMonth" type="button" aria-label="Mes siguiente">→</button></li></menu>
     </header>
     <ul class="legend">
       <li><span class="dot variacion"></span>Variación (fuerza)</li>
@@ -549,7 +551,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <dialog id="glossaryDialog">
   <article class="modal">
-    <button class="close" id="closeGlossary" type="button">✕</button>
+    <button class="close" id="closeGlossary" type="button" aria-label="Cerrar">✕</button>
     <h2 class="display">Glosario</h2>
     <p class="meta">Términos que se usan en la app, explicados fácil</p>
     <dl class="glossary-list">
@@ -591,7 +593,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-19-d';
+const BUILD_VERSION = '2026-07-19-e';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -941,6 +943,20 @@ function construirSnapshotDia(plan, prog){
   });
   return { tipo: plan.type, titulo: plan.title, modo: MODE, items };
 }
+function mensajeRotacion(slot, wsi, offsetMeses, chainLen){
+  if(!Array.isArray(slot) || slot.length<=1) return null;
+  const monthIndexFor = w => Math.floor(w/4) + offsetMeses;
+  const tierEn = w => tierFor(monthIndexFor(w), chainLen);
+  const tierActual = tierEn(wsi);
+  if(tierActual >= chainLen-1) return null; // ya está en la variante más avanzada de esta cadena
+  let inicio = wsi;
+  while(inicio>0 && tierEn(inicio-1)===tierActual){ inicio--; }
+  const semanasEnTier = wsi - inicio + 1;
+  let fin = wsi;
+  while(fin < wsi+52 && tierEn(fin+1)===tierActual){ fin++; }
+  const semanasRestantes = fin - wsi + 1;
+  return `Llevas ${semanasEnTier} semana${semanasEnTier===1?'':'s'} con esta variante — en ${semanasRestantes} semana${semanasRestantes===1?'':'s'} sube de nivel.`;
+}
 function openDay(dObj){
   // Si el modal se re-renderiza (p. ej. al marcar completado) con el temporizador del
   // circuito corriendo, hay que apagarlo — si no, sigue pitando/vibrando en segundo
@@ -957,7 +973,7 @@ function openDay(dObj){
   const snapshot = (entrada && typeof entrada === 'object' && entrada.snapshot) ? entrada.snapshot : null;
   const fecha = dObj.toLocaleDateString('es-CO', {weekday:'long', day:'numeric', month:'long'});
 
-  let html = `<button class="close" id="closeModal" type="button">✕</button>`;
+  let html = `<button class="close" id="closeModal" type="button" aria-label="Cerrar">✕</button>`;
   html += `<p class="modal-eyebrow ${plan.type}">${prog.label} · ${plan.type==='descanso'?'Descanso':plan.type==='circuito'?'Día de circuito':'Día de variación'} · ${MODE==='gym'?'Modo Gym':'Modo Casa'}</p>`;
   html += `<h2 class="display">${plan.title}</h2>`;
   html += `<p class="meta">${fecha.charAt(0).toUpperCase()+fecha.slice(1)}</p>`;
@@ -977,6 +993,9 @@ function openDay(dObj){
   } else {
     html += `<h3 class="block-title">Calentamiento (5 min)</h3><ul class="stretch-list">${plan.warmup.map(w=>`<li>${w}</li>`).join('')}</ul>`;
 
+    const wsiRotacion = weeksSinceStart(dObj);
+    const offsetMesesRotacion = (NIVELES[cloudState.nivel] || NIVELES.principiante).offsetMeses;
+
     if(plan.type==='variacion'){
       html += `<h3 class="block-title">Ejercicios</h3>`;
       plan.slots.forEach(slot=>{
@@ -984,7 +1003,9 @@ function openDay(dObj){
         const e = EX[id];
         const lvl = slotTierIndex(slot, prog.monthIndex);
         const showLvl = Array.isArray(slot) && slot.length>1;
-        html += `<article class="exercise ${MODE==='gym'?'gym':'variacion'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p></hgroup><output class="spec" title="Series x repeticiones">${specText(id,prog)}</output></article>`;
+        const chainLen = Array.isArray(slot) ? slot.length : 1;
+        const rotMsg = mensajeRotacion(slot, wsiRotacion, offsetMesesRotacion, chainLen);
+        html += `<article class="exercise ${MODE==='gym'?'gym':'variacion'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Series x repeticiones">${specText(id,prog)}</output></article>`;
       });
       html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Descansa 45-60 seg entre series. Duración estimada total: ~42-48 min.</p>`;
       if(prog.capped){ html += `<p style="font-size:12.5px;color:var(--gold);margin-top:6px;">Llegaste al nivel máximo de progresión 🏔. Si quieres seguir subiendo dificultad${MODE==='gym'?', sube el peso en la barra o mancuernas cuando completes cómodo el rango superior.':' y ya tienes gym, prueba activar el modo Gym arriba.'}</p>`; }
@@ -1003,7 +1024,9 @@ function openDay(dObj){
         const e = EX[id];
         const lvl = slotTierIndex(slot, prog.monthIndex);
         const showLvl = Array.isArray(slot) && slot.length>1;
-        html += `<article class="exercise ${MODE==='gym'?'gym':'circuito'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p></hgroup><output class="spec" title="Segundos de trabajo en esta estación">${prog.work}s</output></article>`;
+        const chainLen = Array.isArray(slot) ? slot.length : 1;
+        const rotMsg = mensajeRotacion(slot, wsiRotacion, offsetMesesRotacion, chainLen);
+        html += `<article class="exercise ${MODE==='gym'?'gym':'circuito'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Segundos de trabajo en esta estación">${prog.work}s</output></article>`;
       });
       html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Duración estimada total con calentamiento y enfriamiento: ~40-45 min.</p>`;
       window.__resolvedStations = resolvedStations;
@@ -1142,9 +1165,13 @@ function renderHeatmap(){
   const log = getLog();
   const today = new Date(); today.setHours(0,0,0,0);
   const inicio = mondayOf(startDate);
+  // Usuarios nuevos ven una grilla más chica en vez de 12 semanas casi vacías —
+  // va creciendo junto con su historial real hasta el tope de 12.
+  const semanasTranscurridas = Math.round((mondayOf(today) - inicio) / (7*86400000)) + 1;
+  const semanas = Math.min(12, Math.max(6, semanasTranscurridas));
   const startMonday = mondayOf(today);
-  startMonday.setDate(startMonday.getDate() - 11*7);
-  for(let w=0; w<12; w++){
+  startMonday.setDate(startMonday.getDate() - (semanas-1)*7);
+  for(let w=0; w<semanas; w++){
     for(let d=0; d<7; d++){
       const dt = new Date(startMonday); dt.setDate(dt.getDate() + w*7 + d);
       const k = dateKey(dt);
@@ -1537,8 +1564,10 @@ document.getElementById('gymForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const codigo = document.getElementById('gymCodigoInput').value.trim();
   const msg = document.getElementById('gymMsg');
+  const submitBtn = document.getElementById('btnUnirseGym');
   msg.textContent = '';
   if(!codigo){ msg.textContent = 'Escribe el código que te dio tu entrenador.'; return; }
+  submitBtn.disabled = true;
   try{
     const { data, error } = await sb.rpc('unirse_a_gym', { p_codigo: codigo });
     if(error){ msg.textContent = error.message || 'Ese código no es válido. Revísalo con tu entrenador.'; return; }
@@ -1547,6 +1576,8 @@ document.getElementById('gymForm').addEventListener('submit', async (e)=>{
     renderGymSection();
   } catch(e){
     msg.textContent = 'Ese código no es válido. Revísalo con tu entrenador.';
+  } finally {
+    submitBtn.disabled = false;
   }
 });
 document.getElementById('btnGuardarNombre').addEventListener('click', ()=>{
@@ -1737,7 +1768,8 @@ function calcularPlanNutricional(profile){
   const g = GOALS[objetivo];
   let calorias = tdee * g.calorieFactor;
   const piso = sexo==='hombre' ? 1500 : 1300; // piso de seguridad, nunca sugerir menos que esto
-  if(calorias < piso) calorias = piso;
+  let pisoActivado = false;
+  if(calorias < piso){ calorias = piso; pisoActivado = true; }
 
   const proteina = g.proteinPerKg * peso;
   const grasas = (calorias * g.fatPct) / 9;
@@ -1748,12 +1780,14 @@ function calcularPlanNutricional(profile){
   // Si pasa eso, subimos el total para que proteína + grasas + un mínimo de carbohidratos
   // siempre quepan. Así nunca mostramos macros que no sumen el total en pantalla.
   const minimoNecesario = proteina*4 + grasas*9 + MIN_CARBOS_G*4;
-  if(minimoNecesario > calorias) calorias = minimoNecesario;
+  let ajustePorProteina = false;
+  if(minimoNecesario > calorias){ calorias = minimoNecesario; ajustePorProteina = true; }
 
   const carbos = Math.max((calorias - proteina*4 - grasas*9) / 4, 0);
   return {
     tdee: Math.round(tdee), calorias: Math.round(calorias),
-    proteina: Math.round(proteina), grasas: Math.round(grasas), carbos: Math.round(carbos)
+    proteina: Math.round(proteina), grasas: Math.round(grasas), carbos: Math.round(carbos),
+    pisoActivado, ajustePorProteina
   };
 }
 
@@ -1978,7 +2012,7 @@ document.getElementById('shuffleMenuBtn').addEventListener('click', ()=>{
 
 /* ============ BOTÓN "MENÚ DE HOY" (acceso rápido desde el encabezado) ============ */
 function mostrarMenuEnModal(menu, result){
-  const html = `<button class="close" id="closeModal" type="button">✕</button>
+  const html = `<button class="close" id="closeModal" type="button" aria-label="Cerrar">✕</button>
     <p class="modal-eyebrow variacion">🍽️ Menú de hoy</p>
     <h2 class="display">Tu menú de hoy</h2>
     <p class="meta">${menu.totalKcal} kcal de ${result.calorias} kcal objetivo · ${menu.totalProt}g de proteína de ${result.proteina}g objetivo</p>
@@ -2005,7 +2039,14 @@ document.getElementById('btnMenuHoy').addEventListener('click', ()=>{
 function renderDietResult(profile, result, forzarMenuNuevo){
   const out = document.getElementById('dietResult');
   out.hidden = false;
+  let aviso = '';
+  if(result.pisoActivado){
+    aviso = `<p class="diet-notice">⚠️ Tu cálculo dio menos de lo recomendable como mínimo seguro, así que ajustamos tu meta a un piso de seguridad. Comer menos de esto de forma sostenida no es recomendable sin supervisión médica.</p>`;
+  } else if(result.ajustePorProteina){
+    aviso = `<p class="diet-notice">ℹ️ Tu meta de proteína (según tu peso) es alta en relación a tu objetivo calórico, así que subimos un poco el total para que las macros cuadren con espacio para carbohidratos.</p>`;
+  }
   out.innerHTML = `<p class="tdee-line">Tu gasto calórico estimado (mantenimiento) es de <output class="mono">${result.tdee}</output> kcal/día</p>
+    ${aviso}
     <ul class="progress-grid">
       <li class="stat-card"><output class="big mono">${result.calorias}</output><p class="label">Kcal objetivo / día</p></li>
       <li class="stat-card"><output class="big mono">${result.proteina} g</output><p class="label">Proteína</p></li>

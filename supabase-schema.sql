@@ -161,7 +161,10 @@ begin
     raise exception 'Eres entrenador de un gimnasio — no puedes unirte a otro con un código. Sal de tu gimnasio actual primero si quieres cambiarte.';
   end if;
 
-  select * into v_gym from public.gyms where codigo_invitacion = upper(p_codigo);
+  -- FOR UPDATE bloquea esta fila hasta que termine la función: si dos personas se unen
+  -- al mismo gimnasio al mismo tiempo, la segunda espera a que la primera termine antes
+  -- de contar los miembros — así ninguna de las dos puede colarse pasando el límite.
+  select * into v_gym from public.gyms where codigo_invitacion = upper(p_codigo) for update;
   if not found then
     raise exception 'Código de invitación no válido';
   end if;
