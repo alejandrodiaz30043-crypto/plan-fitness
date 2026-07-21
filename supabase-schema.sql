@@ -126,7 +126,10 @@ declare
   v_codigo text;
   v_caller_gym uuid;
 begin
-  select gym_id into v_caller_gym from public.user_data where user_id = auth.uid();
+  -- FOR UPDATE bloquea la fila de este usuario hasta que termine la función — así dos
+  -- llamadas simultáneas (p. ej. por API, sin pasar por el botón ya deshabilitado) no
+  -- pueden crear dos gimnasios a la vez.
+  select gym_id into v_caller_gym from public.user_data where user_id = auth.uid() for update;
   if v_caller_gym is not null then
     raise exception 'Ya perteneces a un gimnasio. Sal de él antes de crear uno nuevo.';
   end if;

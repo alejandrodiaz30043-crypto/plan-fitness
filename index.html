@@ -593,7 +593,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-19-e';
+const BUILD_VERSION = '2026-07-19-f';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -656,14 +656,16 @@ gymMachine:`<svg viewBox="0 0 120 120"><rect x="18" y="18" width="84" height="84
 gymCardio:`<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="40"/><line x1="60" y1="60" x2="60" y2="30"/><line x1="60" y1="60" x2="82" y2="74"/></svg>`,
 };
 
-/* ============ NIVEL POR MES (0=indexado): tier = min(floor(monthIndex/2), chain.length-1) ============ */
-function tierFor(monthIndex, chainLen){ return Math.min(Math.floor(monthIndex/2), chainLen-1); }
-function resolveSlot(slot, monthIndex){
-  if(Array.isArray(slot)){ return slot[tierFor(monthIndex, slot.length)]; }
+/* ============ ROTACIÓN DE VARIANTE DE EJERCICIO: cada 4 semanas, independiente de la
+   progresión de carga (reps/series), que sigue avanzando por mes como antes ============ */
+const CICLO_SEMANAS_VARIANTE = 4;
+function tierFor(wsiEfectivo, chainLen){ return Math.min(Math.floor(wsiEfectivo/CICLO_SEMANAS_VARIANTE), chainLen-1); }
+function resolveSlot(slot, wsiEfectivo){
+  if(Array.isArray(slot)){ return slot[tierFor(wsiEfectivo, slot.length)]; }
   return slot;
 }
-function slotTierIndex(slot, monthIndex){
-  if(Array.isArray(slot)) return tierFor(monthIndex, slot.length);
+function slotTierIndex(slot, wsiEfectivo){
+  if(Array.isArray(slot)) return tierFor(wsiEfectivo, slot.length);
   return 0;
 }
 
@@ -760,6 +762,7 @@ function progressionFor(dateObj){
   return {
     label: `Mes ${realMonthIndex+1} · Semana ${(wsi%4)+1}${capped?' (nivel máximo)':''}`,
     monthIndex,
+    wsiEfectivo: wsi + offsetMeses*4, // controla la rotación de variante de ejercicio (cada 4 semanas)
     repAdd: base.repAdd + monthEff*3,
     holdAdd: base.holdAdd + monthEff*8,
     setAdd: base.setAdd + Math.min(monthEff,2),
@@ -937,24 +940,22 @@ function construirSnapshotDia(plan, prog){
   const EX = activeEX();
   const slots = plan.type === 'variacion' ? plan.slots : plan.circuit;
   const items = slots.map(slot=>{
-    const id = resolveSlot(slot, prog.monthIndex);
+    const id = resolveSlot(slot, prog.wsiEfectivo);
     const e = EX[id];
     return { nombre: e.name, spec: plan.type==='variacion' ? specText(id, prog) : `${prog.work}s trabajo` };
   });
   return { tipo: plan.type, titulo: plan.title, modo: MODE, items };
 }
-function mensajeRotacion(slot, wsi, offsetMeses, chainLen){
+function mensajeRotacion(slot, wsiEfectivo, chainLen){
   if(!Array.isArray(slot) || slot.length<=1) return null;
-  const monthIndexFor = w => Math.floor(w/4) + offsetMeses;
-  const tierEn = w => tierFor(monthIndexFor(w), chainLen);
-  const tierActual = tierEn(wsi);
+  const tierActual = tierFor(wsiEfectivo, chainLen);
   if(tierActual >= chainLen-1) return null; // ya está en la variante más avanzada de esta cadena
-  let inicio = wsi;
-  while(inicio>0 && tierEn(inicio-1)===tierActual){ inicio--; }
-  const semanasEnTier = wsi - inicio + 1;
-  let fin = wsi;
-  while(fin < wsi+52 && tierEn(fin+1)===tierActual){ fin++; }
-  const semanasRestantes = fin - wsi + 1;
+  let inicio = wsiEfectivo;
+  while(inicio>0 && tierFor(inicio-1, chainLen)===tierActual){ inicio--; }
+  const semanasEnTier = wsiEfectivo - inicio + 1;
+  let fin = wsiEfectivo;
+  while(fin < wsiEfectivo+52 && tierFor(fin+1, chainLen)===tierActual){ fin++; }
+  const semanasRestantes = fin - wsiEfectivo + 1;
   return `Llevas ${semanasEnTier} semana${semanasEnTier===1?'':'s'} con esta variante — en ${semanasRestantes} semana${semanasRestantes===1?'':'s'} sube de nivel.`;
 }
 function openDay(dObj){
@@ -993,18 +994,15 @@ function openDay(dObj){
   } else {
     html += `<h3 class="block-title">Calentamiento (5 min)</h3><ul class="stretch-list">${plan.warmup.map(w=>`<li>${w}</li>`).join('')}</ul>`;
 
-    const wsiRotacion = weeksSinceStart(dObj);
-    const offsetMesesRotacion = (NIVELES[cloudState.nivel] || NIVELES.principiante).offsetMeses;
-
     if(plan.type==='variacion'){
       html += `<h3 class="block-title">Ejercicios</h3>`;
       plan.slots.forEach(slot=>{
-        const id = resolveSlot(slot, prog.monthIndex);
+        const id = resolveSlot(slot, prog.wsiEfectivo);
         const e = EX[id];
-        const lvl = slotTierIndex(slot, prog.monthIndex);
+        const lvl = slotTierIndex(slot, prog.wsiEfectivo);
         const showLvl = Array.isArray(slot) && slot.length>1;
         const chainLen = Array.isArray(slot) ? slot.length : 1;
-        const rotMsg = mensajeRotacion(slot, wsiRotacion, offsetMesesRotacion, chainLen);
+        const rotMsg = mensajeRotacion(slot, prog.wsiEfectivo, chainLen);
         html += `<article class="exercise ${MODE==='gym'?'gym':'variacion'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Series x repeticiones">${specText(id,prog)}</output></article>`;
       });
       html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Descansa 45-60 seg entre series. Duración estimada total: ~42-48 min.</p>`;
@@ -1018,14 +1016,14 @@ function openDay(dObj){
           <span class="round" id="timerRound">Ronda 1/${prog.rounds} · Estación 1/${plan.circuit.length}</span>
         </output></section>`;
       html += `<h3 class="block-title">Estaciones del circuito</h3>`;
-      const resolvedStations = plan.circuit.map(s=>resolveSlot(s, prog.monthIndex));
+      const resolvedStations = plan.circuit.map(s=>resolveSlot(s, prog.wsiEfectivo));
       plan.circuit.forEach(slot=>{
-        const id = resolveSlot(slot, prog.monthIndex);
+        const id = resolveSlot(slot, prog.wsiEfectivo);
         const e = EX[id];
-        const lvl = slotTierIndex(slot, prog.monthIndex);
+        const lvl = slotTierIndex(slot, prog.wsiEfectivo);
         const showLvl = Array.isArray(slot) && slot.length>1;
         const chainLen = Array.isArray(slot) ? slot.length : 1;
-        const rotMsg = mensajeRotacion(slot, wsiRotacion, offsetMesesRotacion, chainLen);
+        const rotMsg = mensajeRotacion(slot, prog.wsiEfectivo, chainLen);
         html += `<article class="exercise ${MODE==='gym'?'gym':'circuito'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Segundos de trabajo en esta estación">${prog.work}s</output></article>`;
       });
       html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Duración estimada total con calentamiento y enfriamiento: ~40-45 min.</p>`;
@@ -2303,7 +2301,7 @@ document.getElementById('btnEliminarCuenta').addEventListener('click', async ()=
   try{
     const { error } = await sb.rpc('eliminar_mis_datos');
     if(error){ alert('No se pudo eliminar la cuenta: ' + error.message); return; }
-    alert('Tus datos fueron eliminados. Vas a salir de la sesión ahora.');
+    alert('Tus datos de la app fueron eliminados (calendario, racha, notas, nutrición). Tu correo y contraseña de acceso siguen existiendo en el sistema — si también quieres borrarlos, escríbenos. Vas a salir de la sesión ahora.');
     await sb.auth.signOut();
   } catch(e){
     alert('No se pudo eliminar la cuenta. Intenta de nuevo.');
