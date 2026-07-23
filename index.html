@@ -198,6 +198,17 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 .snapshot-title{margin:0 0 8px;font-size:13px;font-weight:700;}
 .snapshot-list{margin:0 0 8px;padding-left:18px;font-size:13px;line-height:1.6;}
 .snapshot-note{margin:0;font-size:11.5px;color:var(--text-dim);line-height:1.4;}
+.peso-track{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:-6px 0 12px;}
+.peso-hint{margin:0 0 8px;font-size:12px;color:var(--text-dim);}
+.peso-field{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--text-dim);margin-bottom:8px;}
+.peso-input{width:80px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:13.5px;padding:6px 8px;text-align:right;}
+.tope-question{margin:0 0 6px;font-size:12.5px;color:var(--text-dim);}
+.tope-btns{display:inline-flex;gap:6px;}
+.tope-btn{background:transparent;border:1px solid var(--line);color:var(--text-dim);border-radius:7px;padding:5px 14px;font-size:12.5px;font-family:'Manrope',sans-serif;font-weight:600;cursor:pointer;}
+.tope-btn.active{border-color:var(--sage);color:var(--sage);background:color-mix(in srgb, var(--sage) 12%, var(--surface));}
+.peso-aviso-card{background:color-mix(in srgb, var(--gold) 12%, var(--surface));border:1px solid color-mix(in srgb, var(--gold) 40%, var(--line));border-radius:12px;padding:12px 14px;margin:0 0 18px;font-size:13px;line-height:1.5;}
+.peso-aviso-card p{margin:0;}
+.peso-aviso-card p + p{margin-top:6px;}
 .rest-note figcaption{margin-top:4px;}
 .rest-note svg{width:56px;height:56px;color:var(--slate);margin-bottom:10px;stroke:currentColor;stroke-width:5;fill:none;stroke-linecap:round;}
 
@@ -593,7 +604,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-19-f';
+const BUILD_VERSION = '2026-07-19-g';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -709,30 +720,30 @@ const EX_CASA = {
 
 /* ============ BASE DE EJERCICIOS — GYM ============ */
 const EX_GYM = {
-  legPress:{name:'Prensa de Piernas',cue:'Pies al ancho de hombros en la plataforma, baja controlado sin despegar la espalda del respaldo.',icon:'gymMachine',tipo:'reps',sets:3,base:10,span:2},
-  legExtension:{name:'Extensión de Cuádriceps',cue:'Sentado en la máquina, extiende las piernas controlando la bajada.',icon:'gymMachine',tipo:'reps',sets:3,base:12,span:3},
-  legCurl:{name:'Curl Femoral',cue:'Flexiona la rodilla llevando el talón hacia el glúteo, controla la vuelta.',icon:'gymMachine',tipo:'reps',sets:3,base:12,span:3},
-  hipThrust:{name:'Hip Thrust con Barra',cue:'Espalda apoyada en el banco, barra sobre la cadera, empuja con los talones.',icon:'gymBarbell',tipo:'reps',sets:3,base:10,span:2},
-  calfRaiseMachine:{name:'Elevación de Talones en Máquina',cue:'Sube en puntas empujando el peso, controla la bajada.',icon:'gymMachine',tipo:'reps',sets:3,base:15,span:5},
-  benchPress:{name:'Press de Banca',cue:'Barra al pecho controlada, empuja sin despegar los glúteos del banco.',icon:'gymBarbell',tipo:'reps',sets:3,base:8,span:2},
-  inclineBenchPress:{name:'Press Inclinado con Mancuernas',cue:'Banco a 30-45°, empuja las mancuernas sin bloquear los codos.',icon:'gymDumbbell',tipo:'reps',sets:3,base:8,span:2},
-  cableFly:{name:'Aperturas en Polea',cue:'Junta las manos al frente en un arco controlado, sin usar impulso.',icon:'gymCable',tipo:'reps',sets:3,base:12,span:3},
-  tricepPushdown:{name:'Extensión de Tríceps en Polea',cue:'Codos pegados al cuerpo, empuja la barra o cuerda hacia abajo.',icon:'gymCable',tipo:'reps',sets:3,base:12,span:3},
-  dipsMachine:{name:'Fondos Asistidos en Máquina',cue:'Baja controlado hasta 90° en los codos, empuja arriba.',icon:'gymMachine',tipo:'reps',sets:3,base:10,span:2},
+  legPress:{name:'Prensa de Piernas',cue:'Pies al ancho de hombros en la plataforma, baja controlado sin despegar la espalda del respaldo.',icon:'gymMachine',tipo:'reps',sets:3,base:10,span:2,carga:'compuesto'},
+  legExtension:{name:'Extensión de Cuádriceps',cue:'Sentado en la máquina, extiende las piernas controlando la bajada.',icon:'gymMachine',tipo:'reps',sets:3,base:12,span:3,carga:'aislado'},
+  legCurl:{name:'Curl Femoral',cue:'Flexiona la rodilla llevando el talón hacia el glúteo, controla la vuelta.',icon:'gymMachine',tipo:'reps',sets:3,base:12,span:3,carga:'aislado'},
+  hipThrust:{name:'Hip Thrust con Barra',cue:'Espalda apoyada en el banco, barra sobre la cadera, empuja con los talones.',icon:'gymBarbell',tipo:'reps',sets:3,base:10,span:2,carga:'compuesto'},
+  calfRaiseMachine:{name:'Elevación de Talones en Máquina',cue:'Sube en puntas empujando el peso, controla la bajada.',icon:'gymMachine',tipo:'reps',sets:3,base:15,span:5,carga:'aislado'},
+  benchPress:{name:'Press de Banca',cue:'Barra al pecho controlada, empuja sin despegar los glúteos del banco.',icon:'gymBarbell',tipo:'reps',sets:3,base:8,span:2,carga:'compuesto'},
+  inclineBenchPress:{name:'Press Inclinado con Mancuernas',cue:'Banco a 30-45°, empuja las mancuernas sin bloquear los codos.',icon:'gymDumbbell',tipo:'reps',sets:3,base:8,span:2,carga:'compuesto'},
+  cableFly:{name:'Aperturas en Polea',cue:'Junta las manos al frente en un arco controlado, sin usar impulso.',icon:'gymCable',tipo:'reps',sets:3,base:12,span:3,carga:'aislado'},
+  tricepPushdown:{name:'Extensión de Tríceps en Polea',cue:'Codos pegados al cuerpo, empuja la barra o cuerda hacia abajo.',icon:'gymCable',tipo:'reps',sets:3,base:12,span:3,carga:'aislado'},
+  dipsMachine:{name:'Fondos Asistidos en Máquina',cue:'Baja controlado hasta 90° en los codos, empuja arriba.',icon:'gymMachine',tipo:'reps',sets:3,base:10,span:2,carga:'compuesto'},
   rowingMachine:{name:'Remo en Máquina (Cardio)',cue:'Empuja con las piernas primero, luego jala con los brazos, en ritmo constante.',icon:'gymCardio',tipo:'seg',sets:1,base:0,span:0},
   kettlebellSwing:{name:'Swing con Kettlebell',cue:'Impulso desde la cadera, no desde los brazos, espalda siempre recta.',icon:'gymDumbbell',tipo:'seg',sets:1,base:0,span:0},
   boxJump:{name:'Salto al Cajón',cue:'Salta con ambos pies a la vez, aterriza suave con rodillas flexionadas.',icon:'gymCardio',tipo:'seg',sets:1,base:0,span:0},
   battleRopes:{name:'Cuerdas de Batalla',cue:'Ondas alternadas o simultáneas con las cuerdas, ritmo constante.',icon:'gymCardio',tipo:'seg',sets:1,base:0,span:0},
   assaultBike:{name:'Bicicleta de Asalto (Assault Bike)',cue:'Ritmo alto sostenido, empuja con brazos y piernas a la vez.',icon:'gymCardio',tipo:'seg',sets:1,base:0,span:0},
-  latPulldown:{name:'Jalón al Pecho',cue:'Jala la barra hacia el pecho llevando los codos hacia abajo y atrás.',icon:'gymCable',tipo:'reps',sets:3,base:10,span:2},
-  seatedCableRow:{name:'Remo en Polea Sentado',cue:'Espalda recta, jala hacia el abdomen apretando los omóplatos.',icon:'gymCable',tipo:'reps',sets:3,base:10,span:2},
-  barbellRow:{name:'Remo con Barra',cue:'Torso inclinado hacia adelante, jala la barra hacia el abdomen.',icon:'gymBarbell',tipo:'reps',sets:3,base:8,span:2},
-  dumbbellCurl:{name:'Curl con Mancuernas',cue:'Codos pegados al cuerpo, sube controlado sin balancear el torso.',icon:'gymDumbbell',tipo:'reps',sets:3,base:10,span:2},
-  hammerCurl:{name:'Curl Martillo',cue:'Igual que el curl normal pero con agarre neutro (palmas enfrentadas).',icon:'gymDumbbell',tipo:'reps',sets:3,base:10,span:2},
-  shoulderPress:{name:'Press Militar con Mancuernas',cue:'Empuja las mancuernas arriba sin arquear demasiado la espalda baja.',icon:'gymDumbbell',tipo:'reps',sets:3,base:8,span:2},
-  lateralRaise:{name:'Elevaciones Laterales',cue:'Sube los brazos a los lados hasta la altura del hombro, controla la bajada.',icon:'gymDumbbell',tipo:'reps',sets:3,base:12,span:3},
-  cableCrunch:{name:'Crunch en Polea',cue:'De rodillas frente a la polea, flexiona el torso llevando codos hacia las rodillas.',icon:'gymCable',tipo:'reps',sets:3,base:15,span:3},
-  hangingLegRaise:{name:'Elevación de Piernas Colgado',cue:'Colgado de la barra, sube las piernas rectas sin balancear el cuerpo.',icon:'gymMachine',tipo:'reps',sets:3,base:8,span:2},
+  latPulldown:{name:'Jalón al Pecho',cue:'Jala la barra hacia el pecho llevando los codos hacia abajo y atrás.',icon:'gymCable',tipo:'reps',sets:3,base:10,span:2,carga:'compuesto'},
+  seatedCableRow:{name:'Remo en Polea Sentado',cue:'Espalda recta, jala hacia el abdomen apretando los omóplatos.',icon:'gymCable',tipo:'reps',sets:3,base:10,span:2,carga:'compuesto'},
+  barbellRow:{name:'Remo con Barra',cue:'Torso inclinado hacia adelante, jala la barra hacia el abdomen.',icon:'gymBarbell',tipo:'reps',sets:3,base:8,span:2,carga:'compuesto'},
+  dumbbellCurl:{name:'Curl con Mancuernas',cue:'Codos pegados al cuerpo, sube controlado sin balancear el torso.',icon:'gymDumbbell',tipo:'reps',sets:3,base:10,span:2,carga:'aislado'},
+  hammerCurl:{name:'Curl Martillo',cue:'Igual que el curl normal pero con agarre neutro (palmas enfrentadas).',icon:'gymDumbbell',tipo:'reps',sets:3,base:10,span:2,carga:'aislado'},
+  shoulderPress:{name:'Press Militar con Mancuernas',cue:'Empuja las mancuernas arriba sin arquear demasiado la espalda baja.',icon:'gymDumbbell',tipo:'reps',sets:3,base:8,span:2,carga:'compuesto'},
+  lateralRaise:{name:'Elevaciones Laterales',cue:'Sube los brazos a los lados hasta la altura del hombro, controla la bajada.',icon:'gymDumbbell',tipo:'reps',sets:3,base:12,span:3,carga:'aislado'},
+  cableCrunch:{name:'Crunch en Polea',cue:'De rodillas frente a la polea, flexiona el torso llevando codos hacia las rodillas.',icon:'gymCable',tipo:'reps',sets:3,base:15,span:3,carga:'aislado'},
+  hangingLegRaise:{name:'Elevación de Piernas Colgado',cue:'Colgado de la barra, sube las piernas rectas sin balancear el cuerpo.',icon:'gymMachine',tipo:'reps',sets:3,base:8,span:2,carga:'aislado'},
   plankGym:{name:'Plancha Abdominal',cue:'Antebrazos en el piso, cuerpo recto de cabeza a talones.',icon:'gymMachine',tipo:'seg',sets:3,base:30,span:15},
 };
 
@@ -884,6 +895,8 @@ function getCheckins(){ return cloudState.checkins; }
 function setCheckins(c){ cloudState.checkins = c; scheduleSave(); }
 function getNotes(){ return cloudState.notes; }
 function setNotes(n){ cloudState.notes = n; scheduleSave(); }
+function getPesos(){ return cloudState.pesos || (cloudState.pesos = {}); }
+function setPesos(p){ cloudState.pesos = p; scheduleSave(); }
 function getDietProfile(){ return cloudState.diet; }
 function setDietProfile(p){ cloudState.diet = p; scheduleSave(); }
 
@@ -933,6 +946,7 @@ document.getElementById('nextMonth').addEventListener('click', ()=>{ calMonth++;
 /* ============ MODAL DE DÍA ============ */
 let activeDayKey = null;
 let timerInterval = null;
+let avisosPesoPendientes = [];
 const LVL_LABEL = ['básico','intermedio','avanzado','avanzado+'];
 
 function construirSnapshotDia(plan, prog){
@@ -942,9 +956,52 @@ function construirSnapshotDia(plan, prog){
   const items = slots.map(slot=>{
     const id = resolveSlot(slot, prog.wsiEfectivo);
     const e = EX[id];
-    return { nombre: e.name, spec: plan.type==='variacion' ? specText(id, prog) : `${prog.work}s trabajo` };
+    const pesoInput = document.getElementById('pesoInput-'+id);
+    const pesoVal = (pesoInput && pesoInput.value !== '') ? parseFloat(pesoInput.value) : null;
+    return {
+      nombre: e.name,
+      spec: plan.type==='variacion' ? specText(id, prog) : `${prog.work}s trabajo`,
+      peso: (pesoVal !== null && !isNaN(pesoVal)) ? pesoVal : null
+    };
   });
   return { tipo: plan.type, titulo: plan.title, modo: MODE, items };
+}
+const INCREMENTO_PESO = { compuesto: 2.5, aislado: 1 };
+function evaluarProgresionPeso(plan, prog){
+  // Solo aplica en Modo Gym, en días de variación (reps con carga externa) — un circuito
+  // por tiempo no tiene "tope de repeticiones" que evaluar.
+  if(MODE !== 'gym' || plan.type !== 'variacion') return [];
+  const EX = activeEX();
+  const pesos = getPesos();
+  const avisos = [];
+  plan.slots.forEach(slot=>{
+    const id = resolveSlot(slot, prog.wsiEfectivo);
+    const e = EX[id];
+    if(!e || e.tipo !== 'reps' || !e.carga) return;
+    const pesoInput = document.getElementById('pesoInput-'+id);
+    if(!pesoInput || pesoInput.value === '') return; // no registró nada, no tocamos su historial
+    const pesoUsado = parseFloat(pesoInput.value);
+    if(isNaN(pesoUsado) || pesoUsado <= 0) return;
+    const topeBtn = document.querySelector(`.tope-btn.active[data-exid="${id}"]`);
+    const registro = pesos[id] || { peso: pesoUsado, tope: 0 };
+    registro.peso = pesoUsado;
+    if(topeBtn){
+      if(topeBtn.dataset.valor === 'si'){
+        registro.tope = (registro.tope || 0) + 1;
+        if(registro.tope >= 2){
+          const incremento = INCREMENTO_PESO[e.carga] || 2.5;
+          const sugerido = Math.round((pesoUsado + incremento) * 2) / 2;
+          avisos.push({ nombre: e.name, actual: pesoUsado, sugerido });
+          registro.tope = 0;
+        }
+      } else {
+        registro.tope = 0;
+      }
+    }
+    pesos[id] = registro;
+  });
+  setPesos(pesos);
+  return avisos;
 }
 function mensajeRotacion(slot, wsiEfectivo, chainLen){
   if(!Array.isArray(slot) || slot.length<=1) return null;
@@ -984,9 +1041,14 @@ function openDay(dObj){
     if(snapshot.tipo==='descanso'){
       html += `<p class="snapshot-note">Día de descanso.</p>`;
     } else {
-      html += `<ul class="snapshot-list">${snapshot.items.map(it=>`<li>${it.nombre} — <span class="mono">${it.spec}</span></li>`).join('')}</ul>`;
+      html += `<ul class="snapshot-list">${snapshot.items.map(it=>`<li>${it.nombre} — <span class="mono">${it.spec}${it.peso?` @ ${it.peso}kg`:''}</span></li>`).join('')}</ul>`;
     }
     html += `<p class="snapshot-note">Lo de abajo es tu plan actual para este tipo de día — puede verse distinto si cambiaste tus días de entreno o tu nivel desde entonces.</p></div>`;
+  }
+
+  if(avisosPesoPendientes.length){
+    html += `<div class="peso-aviso-card">${avisosPesoPendientes.map(a=>`<p>💪 ¡Completaste el tope en <strong>${a.nombre}</strong> dos veces seguidas! La próxima vez prueba con <strong>${a.sugerido}kg</strong> (llevabas ${a.actual}kg).</p>`).join('')}</div>`;
+    avisosPesoPendientes = [];
   }
 
   if(plan.type==='descanso'){
@@ -1004,6 +1066,18 @@ function openDay(dObj){
         const chainLen = Array.isArray(slot) ? slot.length : 1;
         const rotMsg = mensajeRotacion(slot, prog.wsiEfectivo, chainLen);
         html += `<article class="exercise ${MODE==='gym'?'gym':'variacion'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Series x repeticiones">${specText(id,prog)}</output></article>`;
+        if(MODE==='gym' && e.tipo==='reps' && e.carga){
+          const registro = getPesos()[id] || null;
+          html += `<div class="peso-track">
+            <p class="peso-hint">${registro ? `La última vez usaste <strong>${registro.peso}kg</strong>.` : 'Registra el peso que uses hoy para que la app te avise cuándo subir.'}</p>
+            <label class="peso-field">Peso usado hoy (kg)<input type="number" step="0.5" min="0" inputmode="decimal" class="peso-input" id="pesoInput-${id}" value="${registro ? registro.peso : ''}" placeholder="kg"></label>
+            <p class="tope-question">¿Llegaste al tope en todas las series?</p>
+            <span class="tope-btns" role="group" aria-label="¿Llegaste al tope en todas las series de ${e.name}?">
+              <button type="button" class="tope-btn" data-exid="${id}" data-valor="si">Sí</button>
+              <button type="button" class="tope-btn" data-exid="${id}" data-valor="no">No</button>
+            </span>
+          </div>`;
+        }
       });
       html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Descansa 45-60 seg entre series. Duración estimada total: ~42-48 min.</p>`;
       if(prog.capped){ html += `<p style="font-size:12.5px;color:var(--gold);margin-top:6px;">Llegaste al nivel máximo de progresión 🏔. Si quieres seguir subiendo dificultad${MODE==='gym'?', sube el peso en la barra o mancuernas cuando completes cómodo el rango superior.':' y ya tienes gym, prueba activar el modo Gym arriba.'}</p>`; }
@@ -1048,6 +1122,13 @@ function openDay(dObj){
   if(!overlayEl.open) overlayEl.showModal();
   document.getElementById('closeModal').addEventListener('click', closeModal);
 
+  document.querySelectorAll('.tope-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll(`.tope-btn[data-exid="${btn.dataset.exid}"]`).forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
   const notesArea = document.getElementById('dayNotes');
   const notes = getNotes();
   notesArea.value = notes[k] || '';
@@ -1063,7 +1144,9 @@ function openDay(dObj){
       const log = getLog();
       if(log[activeDayKey]){
         delete log[activeDayKey];
+        avisosPesoPendientes = [];
       } else {
+        avisosPesoPendientes = evaluarProgresionPeso(plan, prog);
         log[activeDayKey] = { done:true, snapshot: construirSnapshotDia(plan, prog) };
       }
       setLog(log); openDay(dObj); renderCalendar(); renderProgress();
@@ -1405,7 +1488,7 @@ function exportProgress(){
 }
 function validarBackup(data){
   if(!data || typeof data !== 'object' || Array.isArray(data)) return false;
-  const camposObjeto = ['log','checkins','notes','menuHistory'];
+  const camposObjeto = ['log','checkins','notes','menuHistory','pesos'];
   for(const campo of camposObjeto){
     const v = data[campo];
     if(v !== undefined && (typeof v !== 'object' || v === null || Array.isArray(v))) return false;
@@ -2093,7 +2176,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let cloudState = null;
 function defaultState(){
-  return { mode:'casa', days:[0,1,2,3,4,5], start: todayStr(), log:{}, checkins:{}, notes:{}, diet:null, nivel:'principiante', theme:null, proteina:null, menuHistory:{}, displayName:'', onboarded:false };
+  return { mode:'casa', days:[0,1,2,3,4,5], start: todayStr(), log:{}, checkins:{}, notes:{}, diet:null, nivel:'principiante', theme:null, proteina:null, menuHistory:{}, pesos:{}, displayName:'', onboarded:false };
 }
 
 let saveTimer = null;
