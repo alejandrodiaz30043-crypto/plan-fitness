@@ -171,6 +171,8 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 .exercise .info .exname{display:block;font-size:14.5px;font-weight:700;font-family:'Manrope',sans-serif;margin:0 0 2px;}
 .exercise .info .cue{font-size:12px;color:var(--text-dim);line-height:1.4;margin:0;}
 .exercise .info .rotation-note{font-size:11px;color:var(--sage);line-height:1.4;margin:3px 0 0;}
+.swap-btn{background:transparent;border:1px solid var(--line);color:var(--text-dim);border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Manrope',sans-serif;font-weight:600;cursor:pointer;margin-top:6px;}
+.swap-btn:hover{color:var(--text);border-color:var(--text-dim);}
 .exercise .spec{font-family:'Space Mono',monospace;text-align:right;font-size:13px;white-space:nowrap;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
 .lvltag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;margin-left:6px;font-weight:700;}
 .lvltag.l0{background:#31463d;color:#8fb8a4;} .lvltag.l1{background:#463823;color:#e8b34a;} .lvltag.l2{background:#462424;color:#ff8a6b;}
@@ -604,7 +606,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-19-g';
+const BUILD_VERSION = '2026-07-19-h';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -947,14 +949,20 @@ document.getElementById('nextMonth').addEventListener('click', ()=>{ calMonth++;
 let activeDayKey = null;
 let timerInterval = null;
 let avisosPesoPendientes = [];
+let overrideEjercicioHoy = {}; // { "fecha-índiceDelSlot": idDelEjercicioElegidoAMano }
+function resolverConOverride(slot, idx, wsiEfectivo, dayKey){
+  const overrideKey = `${dayKey}-${idx}`;
+  if(Array.isArray(slot) && slot.length>1 && overrideEjercicioHoy[overrideKey]) return overrideEjercicioHoy[overrideKey];
+  return resolveSlot(slot, wsiEfectivo);
+}
 const LVL_LABEL = ['básico','intermedio','avanzado','avanzado+'];
 
 function construirSnapshotDia(plan, prog){
   if(plan.type === 'descanso') return { tipo:'descanso', titulo: plan.title, modo: MODE };
   const EX = activeEX();
   const slots = plan.type === 'variacion' ? plan.slots : plan.circuit;
-  const items = slots.map(slot=>{
-    const id = resolveSlot(slot, prog.wsiEfectivo);
+  const items = slots.map((slot, idx)=>{
+    const id = plan.type==='variacion' ? resolverConOverride(slot, idx, prog.wsiEfectivo, activeDayKey) : resolveSlot(slot, prog.wsiEfectivo);
     const e = EX[id];
     const pesoInput = document.getElementById('pesoInput-'+id);
     const pesoVal = (pesoInput && pesoInput.value !== '') ? parseFloat(pesoInput.value) : null;
@@ -974,8 +982,8 @@ function evaluarProgresionPeso(plan, prog){
   const EX = activeEX();
   const pesos = getPesos();
   const avisos = [];
-  plan.slots.forEach(slot=>{
-    const id = resolveSlot(slot, prog.wsiEfectivo);
+  plan.slots.forEach((slot, idx)=>{
+    const id = resolverConOverride(slot, idx, prog.wsiEfectivo, activeDayKey);
     const e = EX[id];
     if(!e || e.tipo !== 'reps' || !e.carga) return;
     const pesoInput = document.getElementById('pesoInput-'+id);
@@ -1058,14 +1066,16 @@ function openDay(dObj){
 
     if(plan.type==='variacion'){
       html += `<h3 class="block-title">Ejercicios</h3>`;
-      plan.slots.forEach(slot=>{
-        const id = resolveSlot(slot, prog.wsiEfectivo);
+      plan.slots.forEach((slot, idx)=>{
+        const esCadena = Array.isArray(slot) && slot.length>1;
+        const id = resolverConOverride(slot, idx, prog.wsiEfectivo, k);
         const e = EX[id];
-        const lvl = slotTierIndex(slot, prog.wsiEfectivo);
-        const showLvl = Array.isArray(slot) && slot.length>1;
-        const chainLen = Array.isArray(slot) ? slot.length : 1;
+        const lvl = esCadena ? slot.indexOf(id) : 0;
+        const showLvl = esCadena;
+        const chainLen = esCadena ? slot.length : 1;
         const rotMsg = mensajeRotacion(slot, prog.wsiEfectivo, chainLen);
-        html += `<article class="exercise ${MODE==='gym'?'gym':'variacion'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Series x repeticiones">${specText(id,prog)}</output></article>`;
+        const cambiarBtn = esCadena ? `<button type="button" class="swap-btn" data-slot-idx="${idx}" title="Probar otra variante de este ejercicio">🔄 Cambiar ejercicio</button>` : '';
+        html += `<article class="exercise ${MODE==='gym'?'gym':'variacion'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}${cambiarBtn}</hgroup><output class="spec" title="Series x repeticiones">${specText(id,prog)}</output></article>`;
         if(MODE==='gym' && e.tipo==='reps' && e.carga){
           const registro = getPesos()[id] || null;
           html += `<div class="peso-track">
@@ -1126,6 +1136,18 @@ function openDay(dObj){
     btn.addEventListener('click', ()=>{
       document.querySelectorAll(`.tope-btn[data-exid="${btn.dataset.exid}"]`).forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.swap-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.slotIdx, 10);
+      const slot = plan.slots[idx];
+      const overrideKey = `${k}-${idx}`;
+      const actual = resolverConOverride(slot, idx, prog.wsiEfectivo, k);
+      const siguiente = slot[(slot.indexOf(actual) + 1) % slot.length];
+      overrideEjercicioHoy[overrideKey] = siguiente;
+      openDay(dObj);
     });
   });
 

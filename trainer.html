@@ -66,6 +66,11 @@ header.top{display:flex;justify-content:space-between;align-items:flex-start;fle
 
 table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
 caption{text-align:left;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;padding:0 0 12px;}
+.section-title{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin:28px 0 12px;}
+.audit-log{display:flex;flex-direction:column;gap:8px;}
+.audit-log li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--text-dim);}
+.audit-log strong{color:var(--text);}
+.audit-log time{display:block;font-size:11px;color:var(--text-dim);margin-top:3px;}
 th,td{padding:12px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);}
 th{color:var(--text-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
 tbody tr:last-child td{border-bottom:none;}
@@ -144,6 +149,10 @@ tbody tr:last-child td{border-bottom:none;}
     <tbody id="membersBody"></tbody>
   </table>
   <p class="empty-msg" id="emptyMsg" hidden>Todavía no hay miembros en tu gimnasio. Comparte tu código de invitación para que se unan desde la app (⚙️ Ajustes → Gimnasio).</p>
+
+  <h2 class="section-title">Historial de cambios de rol</h2>
+  <ul class="audit-log" id="auditLog"></ul>
+  <p class="empty-msg" id="auditEmptyMsg" hidden>Todavía no hay cambios de rol registrados en tu gimnasio.</p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
@@ -158,10 +167,12 @@ function applyTrainerTheme(theme){
   const btn = document.getElementById('btnTheme');
   if(btn) btn.textContent = theme === 'light' ? '☀️ Modo oscuro' : '🌙 Modo claro';
 }
-document.getElementById('btnTheme').addEventListener('click', ()=>{
+document.getElementById('btnTheme').addEventListener('click', async ()=>{
   const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   localStorage.setItem('pf-trainer-theme', next);
   applyTrainerTheme(next);
+  const { data: { user } } = await sb.auth.getUser();
+  if(user){ await sb.from('user_data').update({ theme: next }).eq('user_id', user.id); }
 });
 applyTrainerTheme(document.documentElement.getAttribute('data-theme') || 'dark');
 
@@ -256,6 +267,26 @@ async function mostrarDashboard(gymId){
   document.getElementById('membersBody').querySelectorAll('.action-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> manejarAccionMiembro(btn, gymId));
   });
+
+  renderAuditLog();
+}
+
+async function renderAuditLog(){
+  const { data, error } = await sb.rpc('mi_gym_auditoria');
+  const lista = document.getElementById('auditLog');
+  const vacio = document.getElementById('auditEmptyMsg');
+  if(error || !data || data.length === 0){
+    lista.innerHTML = '';
+    vacio.hidden = false;
+    return;
+  }
+  vacio.hidden = true;
+  const ETIQUETA_ACCION = { promover: 'ascendió a', degradar: 'regresó a miembro a', expulsar: 'expulsó a' };
+  lista.innerHTML = data.map(row => {
+    const fecha = new Date(row.creado).toLocaleDateString('es-CO', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const verbo = ETIQUETA_ACCION[row.accion] || row.accion;
+    return `<li><strong>${escapeHtml(row.actor_nombre)}</strong> ${verbo} <strong>${escapeHtml(row.target_nombre)}</strong><time>${fecha}</time></li>`;
+  }).join('');
 }
 
 async function manejarAccionMiembro(btn, gymId){
@@ -271,7 +302,11 @@ async function manejarAccionMiembro(btn, gymId){
   mostrarDashboard(gymId);
 }
 async function onLogin(user){
-  const { data: mine, error } = await sb.from('user_data').select('role, gym_id').eq('user_id', user.id).maybeSingle();
+  const { data: mine, error } = await sb.from('user_data').select('role, gym_id, theme').eq('user_id', user.id).maybeSingle();
+  if(mine && mine.theme){
+    localStorage.setItem('pf-trainer-theme', mine.theme);
+    applyTrainerTheme(mine.theme);
+  }
   const esEntrenador = mine && (mine.role === 'trainer' || mine.role === 'owner');
   if(error || !mine || !esEntrenador || !mine.gym_id){
     document.getElementById('authScreen').hidden = true;
