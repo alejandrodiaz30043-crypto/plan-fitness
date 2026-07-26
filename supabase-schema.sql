@@ -139,7 +139,13 @@ begin
   values (p_nombre, v_codigo, auth.uid())
   returning gyms.id into v_id;
 
-  update public.user_data set gym_id = v_id, role = 'owner' where user_id = auth.uid();
+  -- upsert, no update: si esta persona se registró y entró directo a trainer.html sin
+  -- haber usado nunca index.html, su fila en user_data todavía no existe. Un UPDATE
+  -- sobre una fila que no existe no hace nada (ni avisa) — dejaría el gimnasio creado
+  -- pero al dueño sin su gym_id/role asignado.
+  insert into public.user_data (user_id, gym_id, role)
+  values (auth.uid(), v_id, 'owner')
+  on conflict (user_id) do update set gym_id = excluded.gym_id, role = excluded.role;
 
   return query select v_id, p_nombre, v_codigo;
 end;
@@ -185,6 +191,20 @@ end;
 $$;
 
 -- El dueño puede ascender a un miembro de su propio gimnasio a "trainer"
+-- Registro de auditoría: quién ascendió/degradó/expulsó a quién en cada gimnasio.
+-- Sin políticas de acceso directo a propósito — nadie puede leer ni escribir esta tabla
+-- directo desde el cliente. Solo se llena desde las funciones de abajo (que ya validan
+-- que quien llama sea el dueño), y solo se lee a través de mi_gym_auditoria().
+create table if not exists public.gym_audit_log (
+  id         uuid primary key default gen_random_uuid(),
+  gym_id     uuid references public.gyms(id) on delete cascade,
+  actor_id   uuid references auth.users(id) on delete set null,
+  target_id  uuid references auth.users(id) on delete set null,
+  accion     text not null,
+  created_at timestamptz default now()
+);
+alter table public.gym_audit_log enable row level security;
+
 create or replace function public.promover_entrenador(p_member_id uuid)
 returns boolean
 language plpgsql security definer
@@ -204,6 +224,7 @@ begin
     raise exception 'Ese usuario no pertenece a tu gimnasio';
   end if;
   update public.user_data set role = 'trainer' where user_id = p_member_id;
+  insert into public.gym_audit_log (gym_id, actor_id, target_id, accion) values (v_caller_gym, auth.uid(), p_member_id, 'promover');
   return true;
 end;
 $$;
@@ -228,6 +249,7 @@ begin
     raise exception 'No puedes cambiar el rol del dueño desde aquí';
   end if;
   update public.user_data set role = 'member' where user_id = p_member_id;
+  insert into public.gym_audit_log (gym_id, actor_id, target_id, accion) values (v_caller_gym, auth.uid(), p_member_id, 'degradar');
   return true;
 end;
 $$;
@@ -253,6 +275,7 @@ begin
     raise exception 'El dueño no puede expulsarse a sí mismo';
   end if;
   update public.user_data set gym_id = null, role = 'member' where user_id = p_member_id;
+  insert into public.gym_audit_log (gym_id, actor_id, target_id, accion) values (v_caller_gym, auth.uid(), p_member_id, 'expulsar');
   return true;
 end;
 $$;
@@ -297,4 +320,37 @@ begin
   delete from public.user_data where user_id = auth.uid();
   return true;
 end;
+$$;
+
+-- Últimas 20 acciones de ascender/degradar/expulsar del gimnasio del que llama,
+-- con nombres legibles. Solo visible para el dueño o entrenadores de ese gimnasio.
+create or replace function public.mi_gym_auditoria()
+returns table(accion text, actor_nombre text, target_nombre text, creado timestamptz)
+language sql security definer stable
+as $$
+  select
+    l.accion,
+    coalesce(ua.display_name, 'Alguien') as actor_nombre,
+    coalesce(ut.display_name, 'un miembro') as target_nombre,
+    l.created_at as creado
+  from public.gym_audit_log l
+  left join public.user_data ua on ua.user_id = l.actor_id
+  left join public.user_data ut on ut.user_id = l.target_id
+  where public.soy_entrenador() and l.gym_id = public.mi_gym_id()
+  order by l.created_at desc
+  limit 20;
+$$;
+
+-- Para el mensaje de "X compañeros llevan racha alta" en la app del miembro.
+-- Deliberadamente NO devuelve nombres ni user_id — solo log/days, lo mínimo para
+-- calcular una racha del lado del cliente sin exponer quién es quién dentro del gimnasio.
+create or replace function public.mi_gym_actividad_anonima()
+returns table(log jsonb, days jsonb)
+language sql security definer stable
+as $$
+  select u.log, u.days
+  from public.user_data u
+  where u.gym_id is not null
+    and u.gym_id = public.mi_gym_id()
+    and u.user_id <> auth.uid();
 $$;

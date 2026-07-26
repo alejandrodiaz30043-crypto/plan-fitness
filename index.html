@@ -211,6 +211,8 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 .peso-aviso-card{background:color-mix(in srgb, var(--gold) 12%, var(--surface));border:1px solid color-mix(in srgb, var(--gold) 40%, var(--line));border-radius:12px;padding:12px 14px;margin:0 0 18px;font-size:13px;line-height:1.5;}
 .peso-aviso-card p{margin:0;}
 .peso-aviso-card p + p{margin-top:6px;}
+.pr-aviso-card{background:color-mix(in srgb, var(--coral) 12%, var(--surface));border:1px solid color-mix(in srgb, var(--coral) 40%, var(--line));border-radius:12px;padding:12px 14px;margin:0 0 18px;font-size:13px;line-height:1.5;}
+.pr-aviso-card p{margin:0;}
 .rest-note figcaption{margin-top:4px;}
 .rest-note svg{width:56px;height:56px;color:var(--slate);margin-bottom:10px;stroke:currentColor;stroke-width:5;fill:none;stroke-linecap:round;}
 
@@ -251,6 +253,16 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 .chart-legend .dot-legend{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle;}
 .chart-legend .dot-legend.bar{background:var(--coral);}
 .chart-legend .dot-legend.line{background:var(--gold);border-radius:50%;}
+
+.records-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:12px;margin-bottom:24px;}
+.record-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+.record-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+.record-head h4{margin:0;font-size:13.5px;font-weight:700;}
+.record-best{font-family:'Space Mono',monospace;font-size:12.5px;color:var(--coral);white-space:nowrap;}
+.record-chart{display:block;width:100%;height:56px;}
+.record-trend{margin:4px 0 0;font-size:12px;color:var(--text-dim);font-family:'Space Mono',monospace;}
+.record-count{font-family:'Manrope',sans-serif;color:var(--text-dim);}
+.record-note{margin:8px 0 0;font-size:12px;color:var(--text-dim);}
 
 .coach-card{margin-bottom:18px;display:flex;flex-direction:column;gap:8px;}
 .coach-msg{margin:0;padding:11px 14px;border-radius:11px;font-size:13.5px;line-height:1.45;border:1px solid var(--line);background:var(--surface);}
@@ -449,6 +461,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
   <section class="view active" id="view-calendario">
     <div class="coach-card" id="coachCard" hidden></div>
+    <div class="coach-card" id="rachaCompanerosCard" hidden></div>
     <header class="cal-head">
       <h2 id="calMonthLabel" class="display">Julio 2026</h2>
       <menu class="cal-nav"><li><button id="prevMonth" type="button" aria-label="Mes anterior">←</button></li><li><button id="nextMonth" type="button" aria-label="Mes siguiente">→</button></li></menu>
@@ -491,6 +504,9 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
         <span><span class="dot-legend line" aria-hidden="true"></span>Energía reportada (check-in)</span>
       </p>
     </div>
+    <h3 class="block-title">Récords de peso (Modo Gym)</h3>
+    <p class="chart-empty" id="recordsEmpty" hidden>Todavía no tienes récords registrados — usa el registro de peso en tus entrenos de gimnasio para verlos aquí.</p>
+    <div class="records-grid" id="recordsWrap"></div>
     <h3 class="block-title">Historial semanal</h3>
     <ol id="weekHistory"></ol>
     <h3 class="block-title">Respaldo de tus datos</h3>
@@ -606,7 +622,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-07-19-h';
+const BUILD_VERSION = '2026-07-19-i';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -949,6 +965,7 @@ document.getElementById('nextMonth').addEventListener('click', ()=>{ calMonth++;
 let activeDayKey = null;
 let timerInterval = null;
 let avisosPesoPendientes = [];
+let prsPendientes = [];
 let overrideEjercicioHoy = {}; // { "fecha-índiceDelSlot": idDelEjercicioElegidoAMano }
 function resolverConOverride(slot, idx, wsiEfectivo, dayKey){
   const overrideKey = `${dayKey}-${idx}`;
@@ -978,10 +995,11 @@ const INCREMENTO_PESO = { compuesto: 2.5, aislado: 1 };
 function evaluarProgresionPeso(plan, prog){
   // Solo aplica en Modo Gym, en días de variación (reps con carga externa) — un circuito
   // por tiempo no tiene "tope de repeticiones" que evaluar.
-  if(MODE !== 'gym' || plan.type !== 'variacion') return [];
+  if(MODE !== 'gym' || plan.type !== 'variacion') return { avisos: [], prs: [] };
   const EX = activeEX();
   const pesos = getPesos();
   const avisos = [];
+  const prs = [];
   plan.slots.forEach((slot, idx)=>{
     const id = resolverConOverride(slot, idx, prog.wsiEfectivo, activeDayKey);
     const e = EX[id];
@@ -991,7 +1009,7 @@ function evaluarProgresionPeso(plan, prog){
     const pesoUsado = parseFloat(pesoInput.value);
     if(isNaN(pesoUsado) || pesoUsado <= 0) return;
     const topeBtn = document.querySelector(`.tope-btn.active[data-exid="${id}"]`);
-    const registro = pesos[id] || { peso: pesoUsado, tope: 0 };
+    const registro = pesos[id] || { peso: pesoUsado, tope: 0, mejor: null };
     registro.peso = pesoUsado;
     if(topeBtn){
       if(topeBtn.dataset.valor === 'si'){
@@ -1006,10 +1024,14 @@ function evaluarProgresionPeso(plan, prog){
         registro.tope = 0;
       }
     }
+    if(!registro.mejor || pesoUsado > registro.mejor.peso){
+      registro.mejor = { peso: pesoUsado, fecha: activeDayKey };
+      prs.push({ nombre: e.name, peso: pesoUsado });
+    }
     pesos[id] = registro;
   });
   setPesos(pesos);
-  return avisos;
+  return { avisos, prs };
 }
 function mensajeRotacion(slot, wsiEfectivo, chainLen){
   if(!Array.isArray(slot) || slot.length<=1) return null;
@@ -1054,6 +1076,10 @@ function openDay(dObj){
     html += `<p class="snapshot-note">Lo de abajo es tu plan actual para este tipo de día — puede verse distinto si cambiaste tus días de entreno o tu nivel desde entonces.</p></div>`;
   }
 
+  if(prsPendientes.length){
+    html += `<div class="pr-aviso-card">${prsPendientes.map(p=>`<p>🏆 ¡Nuevo récord personal en <strong>${p.nombre}</strong>: ${p.peso}kg!</p>`).join('')}</div>`;
+    prsPendientes = [];
+  }
   if(avisosPesoPendientes.length){
     html += `<div class="peso-aviso-card">${avisosPesoPendientes.map(a=>`<p>💪 ¡Completaste el tope en <strong>${a.nombre}</strong> dos veces seguidas! La próxima vez prueba con <strong>${a.sugerido}kg</strong> (llevabas ${a.actual}kg).</p>`).join('')}</div>`;
     avisosPesoPendientes = [];
@@ -1079,7 +1105,7 @@ function openDay(dObj){
         if(MODE==='gym' && e.tipo==='reps' && e.carga){
           const registro = getPesos()[id] || null;
           html += `<div class="peso-track">
-            <p class="peso-hint">${registro ? `La última vez usaste <strong>${registro.peso}kg</strong>.` : 'Registra el peso que uses hoy para que la app te avise cuándo subir.'}</p>
+            <p class="peso-hint">${registro ? `La última vez usaste <strong>${registro.peso}kg</strong>.${registro.mejor ? ` Mejor marca: <strong>${registro.mejor.peso}kg</strong>.` : ''}` : 'Registra el peso que uses hoy para que la app te avise cuándo subir.'}</p>
             <label class="peso-field">Peso usado hoy (kg)<input type="number" step="0.5" min="0" inputmode="decimal" class="peso-input" id="pesoInput-${id}" value="${registro ? registro.peso : ''}" placeholder="kg"></label>
             <p class="tope-question">¿Llegaste al tope en todas las series?</p>
             <span class="tope-btns" role="group" aria-label="¿Llegaste al tope en todas las series de ${e.name}?">
@@ -1167,8 +1193,11 @@ function openDay(dObj){
       if(log[activeDayKey]){
         delete log[activeDayKey];
         avisosPesoPendientes = [];
+        prsPendientes = [];
       } else {
-        avisosPesoPendientes = evaluarProgresionPeso(plan, prog);
+        const resultado = evaluarProgresionPeso(plan, prog);
+        avisosPesoPendientes = resultado.avisos;
+        prsPendientes = resultado.prs;
         log[activeDayKey] = { done:true, snapshot: construirSnapshotDia(plan, prog) };
       }
       setLog(log); openDay(dObj); renderCalendar(); renderProgress();
@@ -1460,6 +1489,66 @@ function renderProgressChart(){
   }
   svg.innerHTML = inner;
 }
+
+/* ============ RÉCORDS Y PROGRESO DE PESO POR EJERCICIO ============
+   No guardamos un historial aparte — lo reconstruimos de los "snapshots" que ya
+   quedan congelados cada vez que marcas un día como completado (mismo mecanismo
+   que usamos para que cambiar tus días/nivel no reescriba lo que ya hiciste). */
+function historialDePeso(nombreEjercicio){
+  const log = getLog();
+  const puntos = [];
+  Object.keys(log).sort().forEach(k=>{
+    const entrada = log[k];
+    if(!entrada || typeof entrada !== 'object' || !entrada.snapshot || !Array.isArray(entrada.snapshot.items)) return;
+    entrada.snapshot.items.forEach(it=>{
+      if(it.nombre === nombreEjercicio && it.peso !== null && it.peso !== undefined){
+        puntos.push({ fecha: k, peso: it.peso });
+      }
+    });
+  });
+  return puntos;
+}
+function construirMiniGraficoPeso(historial){
+  if(historial.length < 2){
+    return `<p class="record-note">Necesitas al menos 2 registros con este ejercicio para ver la tendencia.</p>`;
+  }
+  const pesosArr = historial.map(p=>p.peso);
+  const min = Math.min(...pesosArr), max = Math.max(...pesosArr);
+  const rango = Math.max(max-min, 1);
+  const W = 280, H = 56, pad = 6;
+  const puntos = historial.map((p,i)=>{
+    const x = pad + (historial.length>1 ? (i/(historial.length-1)) * (W-pad*2) : 0);
+    const y = H-pad - ((p.peso-min)/rango) * (H-pad*2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const primera = historial[0], ultima = historial[historial.length-1];
+  return `<svg viewBox="0 0 ${W} ${H}" class="record-chart" role="img" aria-label="Progreso de peso: de ${primera.peso} a ${ultima.peso} kilos"><polyline points="${puntos}" fill="none" stroke="var(--coral)" stroke-width="2"/></svg>
+    <p class="record-trend">${primera.peso}kg → ${ultima.peso}kg <span class="record-count">(${historial.length} registros)</span></p>`;
+}
+function renderRecordsPeso(){
+  const wrap = document.getElementById('recordsWrap');
+  const emptyMsg = document.getElementById('recordsEmpty');
+  if(!wrap || !emptyMsg) return;
+  const pesos = getPesos();
+  const idsConDatos = Object.keys(pesos).filter(id => pesos[id] && pesos[id].mejor);
+  if(idsConDatos.length === 0){
+    wrap.innerHTML = '';
+    emptyMsg.hidden = false;
+    return;
+  }
+  emptyMsg.hidden = true;
+  const EX_ALL = { ...EX_CASA, ...EX_GYM };
+  wrap.innerHTML = idsConDatos.map(id=>{
+    const e = EX_ALL[id];
+    const nombre = e ? e.name : id;
+    const registro = pesos[id];
+    const historial = historialDePeso(nombre);
+    return `<div class="record-card">
+      <div class="record-head"><h4>${nombre}</h4><span class="record-best">🏆 ${registro.mejor.peso}kg</span></div>
+      ${construirMiniGraficoPeso(historial)}
+    </div>`;
+  }).join('');
+}
 function renderProgress(){
   const log = getLog();
   document.getElementById('pStreak').textContent = computeStreak(log);
@@ -1468,6 +1557,7 @@ function renderProgress(){
   document.getElementById('pWeek').textContent = curProg.label.replace('Semana','S').replace(' (nivel máximo)',' 🏔');
   renderHeatmap();
   renderProgressChart();
+  renderRecordsPeso();
   renderCoach();
   const checkins = getCheckins();
   const curWeekKey = dateKey(mondayOf(new Date()));
@@ -1628,6 +1718,39 @@ document.getElementById('btnSettings').addEventListener('click', ()=>{
 });
 
 /* ============ GIMNASIO (self-service) ============ */
+/* ============ RACHA DE COMPAÑEROS DEL GIMNASIO (agregado, anónimo) ============ */
+function calcularRachaGenerica(log, days){
+  if(!log) return 0;
+  const diasEntreno = Array.isArray(days) && days.length ? days : [0,1,2,3,4,5,6];
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const todayKey = dateKey(hoy);
+  let racha = 0;
+  const cursor = new Date(hoy);
+  for(let i=0;i<400;i++){
+    const wd = (cursor.getDay()+6)%7;
+    const k = dateKey(cursor);
+    if(!diasEntreno.includes(wd)){ cursor.setDate(cursor.getDate()-1); continue; }
+    if(log[k]){ racha++; cursor.setDate(cursor.getDate()-1); continue; }
+    if(k===todayKey){ cursor.setDate(cursor.getDate()-1); continue; }
+    break;
+  }
+  return racha;
+}
+async function renderRachaCompaneros(){
+  const wrap = document.getElementById('rachaCompanerosCard');
+  if(!wrap) return;
+  try{
+    const { data, error } = await sb.rpc('mi_gym_actividad_anonima');
+    if(error || !data || data.length === 0){ wrap.hidden = true; wrap.innerHTML = ''; return; }
+    const conRachaAlta = data.filter(row => calcularRachaGenerica(row.log, row.days) >= 14).length;
+    if(conRachaAlta === 0){ wrap.hidden = true; wrap.innerHTML = ''; return; }
+    wrap.hidden = false;
+    wrap.innerHTML = `<p class="coach-msg positivo">👥 ${conRachaAlta} compañero${conRachaAlta===1?'':'s'} de tu gimnasio lleva${conRachaAlta===1?'':'n'} 2+ semanas seguidas entrenando.</p>`;
+  } catch(e){
+    wrap.hidden = true;
+    wrap.innerHTML = '';
+  }
+}
 async function renderGymSection(){
   const estado = document.getElementById('gymStatus');
   const btnSalir = document.getElementById('btnSalirGym');
@@ -2239,6 +2362,7 @@ function startApp(){
   renderNivelPicker();
   renderCalendar();
   renderCoach();
+  renderRachaCompaneros();
   renderProgress();
   renderNutricion();
   document.getElementById('appHeader').hidden = false;
