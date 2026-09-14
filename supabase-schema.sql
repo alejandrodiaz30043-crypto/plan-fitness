@@ -28,10 +28,12 @@ create table if not exists public.user_data (
   display_name text,
   role         text default 'member',
   gym_id       uuid,
+  rutina       jsonb default '{}'::jsonb,
   updated_at   timestamptz default now()
 );
 
 -- Por si tu tabla ya existía sin alguna de estas columnas (no afecta filas existentes)
+alter table public.user_data add column if not exists rutina jsonb default '{}'::jsonb;
 alter table public.user_data add column if not exists nivel text default 'principiante';
 alter table public.user_data add column if not exists theme text;
 alter table public.user_data add column if not exists proteina jsonb;
