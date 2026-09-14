@@ -235,7 +235,11 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40px;}
 .credits{display:block;margin-top:6px;color:var(--text-dim);opacity:.75;font-size:11px;}
 
-.rutina-table-wrap{overflow-x:auto;margin-bottom:18px;border:1px solid var(--line);border-radius:14px;}
+.rutina-table-wrap{overflow-x:auto;margin-bottom:18px;border:1px solid var(--line);border-radius:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--line) transparent;}
+.rutina-table-wrap::-webkit-scrollbar{height:6px;}
+.rutina-table-wrap::-webkit-scrollbar-track{background:transparent;}
+.rutina-table-wrap::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;}
+.rutina-table-wrap::-webkit-scrollbar-thumb:hover{background:var(--coral);}
 .rutina-table{border-collapse:collapse;width:max-content;min-width:100%;}
 .rutina-table th,.rutina-table td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:6px 4px;text-align:center;font-size:11px;color:var(--text-dim);font-family:'Space Mono',monospace;}
 .rutina-table th:last-child,.rutina-table td:last-child{border-right:none;}
@@ -653,7 +657,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-09-13-k';
+const BUILD_VERSION = '2026-09-13-l';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
