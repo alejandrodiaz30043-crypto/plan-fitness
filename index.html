@@ -51,8 +51,7 @@ h1,h2,h3,.display{font-family:'Sora',sans-serif;font-weight:700;letter-spacing:-
 .mono{font-family:'Space Mono',monospace;}
 .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
 
-header.top{padding:28px 20px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--bg));position:relative;overflow:hidden;}
-header.top::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,107,74,0.18),transparent 70%);}
+header.top{padding:28px 20px 22px;border-bottom:1px solid var(--line);background:radial-gradient(circle at calc(100% - 50px) 50px,rgba(255,107,74,0.18),transparent 90px),linear-gradient(180deg,var(--surface),var(--bg));position:relative;}
 .eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--coral);margin:0 0 6px;}
 h1.title{font-size:28px;margin:0 0 4px;}
 .subtitle{color:var(--text-dim);font-size:14px;margin:0;}
@@ -67,10 +66,15 @@ h1.title{font-size:28px;margin:0 0 4px;}
 .more-summary{list-style:none;cursor:pointer;}
 .more-summary::-webkit-details-marker{display:none;}
 .more-menu[open] .more-summary{border-color:var(--coral);color:var(--coral);}
-.more-dropdown{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:2px;min-width:180px;z-index:5;box-shadow:0 10px 28px rgba(0,0,0,0.28);}
+.more-dropdown{position:absolute;top:calc(100% + 8px);right:0;margin:0;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:2px;min-width:180px;z-index:5;box-shadow:0 10px 28px rgba(0,0,0,0.28);}
 .more-item{width:100%;text-align:left;background:transparent;border:none;border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:'Manrope',sans-serif;font-weight:500;color:var(--text-dim);cursor:pointer;}
 .more-item:hover{background:var(--surface-2);color:var(--text);}
 .more-item[hidden]{display:none;}
+.more-item.danger{color:var(--coral);border-top:1px solid var(--line);border-radius:0 0 8px 8px;margin-top:4px;padding-top:10px;}
+.more-dropdown li{list-style:none;}
+.mode-row{list-style:none;padding:0;}
+.mode-row-end{margin-left:auto;}
+.today-btn:focus-visible,.install-btn:focus-visible,.settings-btn:focus-visible,.more-item:focus-visible,nav.tabs button:focus-visible{outline:2px solid var(--coral);outline-offset:2px;}
 
 .auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
 .auth-screen[hidden]{display:none;}
@@ -214,6 +218,10 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 .pr-aviso-card{background:color-mix(in srgb, var(--coral) 12%, var(--surface));border:1px solid color-mix(in srgb, var(--coral) 40%, var(--line));border-radius:12px;padding:12px 14px;margin:0 0 18px;font-size:13px;line-height:1.5;}
 .pr-aviso-card p{margin:0;}
 .rest-note figcaption{margin-top:4px;}
+.rest-note.compact{padding:6px 10px 14px;}
+.rest-note.compact svg{width:40px;height:40px;margin-bottom:6px;}
+.stretch-summary{font-size:12.5px;color:var(--text-dim);margin:0 0 10px;text-align:center;}
+.exercise.estiramiento .icon{color:var(--slate);}
 .rest-note svg{width:56px;height:56px;color:var(--slate);margin-bottom:10px;stroke:currentColor;stroke-width:5;fill:none;stroke-linecap:round;}
 
 .progress-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
@@ -235,27 +243,6 @@ ul.stretch-list{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5p
 footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40px;}
 .credits{display:block;margin-top:6px;color:var(--text-dim);opacity:.75;font-size:11px;}
 
-.rutina-table-wrap{overflow-x:auto;margin-bottom:18px;border:1px solid var(--line);border-radius:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--line) transparent;}
-.rutina-table-wrap::-webkit-scrollbar{height:6px;}
-.rutina-table-wrap::-webkit-scrollbar-track{background:transparent;}
-.rutina-table-wrap::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;}
-.rutina-table-wrap::-webkit-scrollbar-thumb:hover{background:var(--coral);}
-.rutina-table{border-collapse:collapse;width:max-content;min-width:100%;}
-.rutina-table th,.rutina-table td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:6px 4px;text-align:center;font-size:11px;color:var(--text-dim);font-family:'Space Mono',monospace;}
-.rutina-table th:last-child,.rutina-table td:last-child{border-right:none;}
-.rutina-table thead th{color:var(--text-dim);font-weight:600;padding-top:10px;}
-.rutina-table td.habito-label,.rutina-table th.habito-label{position:sticky;left:0;background:var(--surface);text-align:left;padding:8px 12px;font-family:'Manrope',sans-serif;font-size:12.5px;color:var(--text);white-space:nowrap;z-index:1;}
-.rutina-table td.today-col{background:rgba(255,107,74,0.08);}
-.rutina-total-row td{border-top:2px solid var(--line);padding-top:10px;}
-.rutina-total-row .habito-label{font-weight:700;color:var(--text);}
-.rutina-day-total{display:inline-block;min-width:18px;font-weight:700;color:var(--text-dim);}
-.rutina-day-total.full{color:var(--coral);}
-.rutina-pct{display:block;color:var(--coral);font-family:'Space Mono',monospace;font-size:10.5px;margin-top:2px;font-weight:600;}
-.rutina-check{width:20px;height:20px;cursor:pointer;accent-color:var(--coral);}
-.rutina-check:disabled{cursor:not-allowed;}
-.rutina-check-past:disabled{opacity:.85;}
-.rutina-check:disabled:not(.rutina-check-past){opacity:.25;}
-.rutina-table td.today-col input.rutina-check{outline:2px solid var(--coral);outline-offset:2px;border-radius:4px;}
 .heatmap{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:14px;gap:3px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px;}
 .heat-cell{width:14px;height:14px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line);display:inline-block;}
 .heat-cell.rest{background:var(--slate);opacity:.4;border-color:transparent;}
@@ -427,29 +414,31 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <p class="today-cta">
       <button class="today-btn" id="btnToday" type="button">▶ Entrenamiento de hoy</button>
       <button class="install-btn" id="btnMenuHoy" type="button">🍽️ Menú de hoy</button>
-      <details class="more-menu" id="moreMenu">
-        <summary class="install-btn more-summary">⋯ Más</summary>
-        <menu class="more-dropdown">
-          <li><button class="more-item" id="btnGlossary" type="button">❓ Glosario</button></li>
-          <li><button class="more-item" id="btnTheme" type="button">🌙 Modo claro</button></li>
-          <li><button class="more-item" id="btnInstall" type="button" hidden>⬇️ Instalar app</button></li>
-        </menu>
-      </details>
     </p>
     <ul class="streakbar">
       <li class="chip">🔥 <output class="num mono" id="streakNum">0</output> días seguidos</li>
       <li class="chip">📅 <output class="num mono" id="weekNum">Mes 1</output></li>
       <li class="chip">✅ <output class="num mono" id="totalDone">0</output> entrenos completados</li>
     </ul>
-    <menu class="mode-row">
+    <menu class="mode-row" aria-label="Herramientas">
       <li>
-        <menu class="mode-toggle">
+        <menu class="mode-toggle" aria-label="Modo de entrenamiento">
           <li><button class="active casa" id="btnCasa" data-mode="casa" type="button">🏠 Casa</button></li>
           <li><button class="gym" id="btnGym" data-mode="gym" type="button">🏋️ Gym</button></li>
         </menu>
       </li>
-      <li><button class="settings-btn" id="btnSettings" type="button">⚙️ Días de entreno</button></li>
-      <li><button class="settings-btn" id="btnLogout" type="button">🚪 Salir</button></li>
+      <li><button class="settings-btn" id="btnSettings" type="button" aria-controls="settingsPanel">⚙️ Ajustes</button></li>
+      <li class="mode-row-end">
+        <details class="more-menu" id="moreMenu">
+          <summary class="settings-btn more-summary" aria-label="Más opciones">⋯ Más</summary>
+          <menu class="more-dropdown">
+            <li><button class="more-item" id="btnGlossary" type="button">❓ Glosario</button></li>
+            <li><button class="more-item" id="btnTheme" type="button">🌙 Modo claro</button></li>
+            <li><button class="more-item" id="btnInstall" type="button" hidden>⬇️ Instalar app</button></li>
+            <li><button class="more-item danger" id="btnLogout" type="button">🚪 Salir</button></li>
+          </menu>
+        </details>
+      </li>
     </menu>
     <fieldset class="settings-panel" id="settingsPanel">
       <legend class="stitle">¿Qué días entrenas? (los demás quedan como descanso)</legend>
@@ -474,10 +463,9 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 </header>
 
 <main class="wrap" id="appMain" hidden>
-  <nav class="tabs">
+  <nav class="tabs" aria-label="Secciones de la app">
     <button class="active" data-view="calendario" type="button">Calendario</button>
     <button data-view="progreso" type="button">Progreso</button>
-    <button data-view="rutina" type="button">Rutina</button>
     <button data-view="nutricion" type="button">Nutrición</button>
   </nav>
 
@@ -540,19 +528,6 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
     <h3 class="block-title danger-title">Eliminar cuenta</h3>
     <p class="backup-note">Esto borra para siempre tu calendario, racha, check-ins, notas y plan de nutrición. No se puede deshacer. Considera exportar un respaldo arriba antes de continuar.</p>
     <button class="danger-btn" id="btnEliminarCuenta" type="button">Eliminar mi cuenta y todos mis datos</button>
-  </section>
-
-  <section class="view" id="view-rutina">
-    <header class="cal-head">
-      <h2 id="rutinaMonthLabel" class="display">Mes</h2>
-      <menu class="cal-nav"><li><button id="prevRutinaMonth" type="button" aria-label="Mes anterior">←</button></li><li><button id="nextRutinaMonth" type="button" aria-label="Mes siguiente">→</button></li></menu>
-    </header>
-    <ul class="progress-grid" id="rutinaStats"></ul>
-    <h3 class="block-title">Marca cada día que lo cumpliste</h3>
-    <div class="rutina-table-wrap">
-      <table class="rutina-table" id="rutinaTable"></table>
-    </div>
-    <p class="backup-note">Los hábitos de esta pestaña son fijos por ahora. Si quieres cambiarlos, dímelo y los ajusto.</p>
   </section>
 
   <section class="view" id="view-nutricion">
@@ -657,7 +632,7 @@ footer.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:40
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.min.js"></script>
 <script>
-const BUILD_VERSION = '2026-09-13-l';
+const BUILD_VERSION = '2026-10-25-b';
 
 /* ============ TEMA CLARO / OSCURO ============ */
 function applyTheme(theme){
@@ -712,6 +687,32 @@ reverseSnowAngel:`<svg viewBox="0 0 120 120"><circle cx="15" cy="60" r="9"/><lin
 ytwRaise:`<svg viewBox="0 0 120 120"><circle cx="60" cy="62" r="9"/><line x1="60" y1="70" x2="60" y2="100"/><line x1="60" y1="72" x2="30" y2="94"/><line x1="60" y1="72" x2="90" y2="94"/><line x1="60" y1="70" x2="32" y2="42"/><line x1="60" y1="70" x2="88" y2="42"/></svg>`,
 towelCurl:`<svg viewBox="0 0 120 120"><circle cx="55" cy="18" r="9"/><line x1="55" y1="27" x2="55" y2="62"/><line x1="55" y1="34" x2="35" y2="30"/><line x1="55" y1="34" x2="72" y2="46"/><line x1="72" y1="46" x2="60" y2="60"/><ellipse cx="55" cy="100" rx="14" ry="5"/><line x1="55" y1="62" x2="45" y2="98"/><line x1="55" y1="62" x2="65" y2="98"/></svg>`,
 shoulderTap:`<svg viewBox="0 0 120 120"><circle cx="18" cy="58" r="9"/><line x1="26" y1="58" x2="60" y2="68"/><line x1="60" y1="68" x2="96" y2="68"/><line x1="26" y1="60" x2="26" y2="80"/><line x1="60" y1="68" x2="40" y2="52"/></svg>`,
+sideLunge:`<svg viewBox="0 0 120 120"><circle cx="60" cy="18" r="9"/><line x1="60" y1="27" x2="60" y2="58"/><line x1="60" y1="34" x2="40" y2="46"/><line x1="60" y1="34" x2="80" y2="46"/><line x1="60" y1="58" x2="30" y2="76"/><line x1="30" y1="76" x2="28" y2="104"/><line x1="60" y1="58" x2="98" y2="102"/></svg>`,
+goodMorning:`<svg viewBox="0 0 120 120"><circle cx="30" cy="40" r="9"/><line x1="38" y1="46" x2="72" y2="62"/><line x1="40" y1="47" x2="48" y2="32"/><line x1="72" y1="62" x2="68" y2="104"/><line x1="72" y1="62" x2="78" y2="104"/></svg>`,
+singleLegDeadlift:`<svg viewBox="0 0 120 120"><circle cx="22" cy="50" r="9"/><line x1="30" y1="54" x2="70" y2="62"/><line x1="70" y1="62" x2="66" y2="104"/><line x1="70" y1="62" x2="108" y2="58"/><line x1="38" y1="56" x2="40" y2="86"/></svg>`,
+birdDog:`<svg viewBox="0 0 120 120"><circle cx="28" cy="32" r="8"/><line x1="36" y1="40" x2="84" y2="54"/><line x1="46" y1="44" x2="46" y2="92"/><line x1="38" y1="42" x2="8" y2="50"/><line x1="84" y1="54" x2="80" y2="92"/><line x1="84" y1="54" x2="114" y2="58"/></svg>`,
+reversePlank:`<svg viewBox="0 0 120 120"><circle cx="100" cy="36" r="9"/><line x1="92" y1="44" x2="30" y2="74"/><line x1="86" y1="48" x2="84" y2="94"/><line x1="30" y1="74" x2="16" y2="96"/></svg>`,
+deadBug:`<svg viewBox="0 0 120 120"><circle cx="16" cy="94" r="9"/><line x1="25" y1="94" x2="60" y2="94"/><line x1="32" y1="92" x2="34" y2="52"/><line x1="26" y1="92" x2="6" y2="60"/><line x1="60" y1="94" x2="70" y2="62"/><line x1="70" y1="62" x2="96" y2="62"/><line x1="60" y1="94" x2="104" y2="94"/></svg>`,
+hollowHold:`<svg viewBox="0 0 120 120"><circle cx="14" cy="78" r="9"/><path d="M22 84 Q50 96 62 92"/><line x1="62" y1="92" x2="106" y2="66"/><line x1="22" y1="82" x2="4" y2="62"/></svg>`,
+vUp:`<svg viewBox="0 0 120 120"><circle cx="26" cy="30" r="9"/><line x1="32" y1="38" x2="60" y2="92"/><line x1="60" y1="92" x2="96" y2="40"/><line x1="40" y1="52" x2="88" y2="52"/></svg>`,
+bearCrawl:`<svg viewBox="0 0 120 120"><circle cx="26" cy="40" r="8"/><line x1="34" y1="46" x2="82" y2="52"/><line x1="44" y1="48" x2="44" y2="92"/><line x1="82" y1="52" x2="70" y2="76"/><line x1="70" y1="76" x2="86" y2="92"/></svg>`,
+palmPress:`<svg viewBox="0 0 120 120"><circle cx="60" cy="20" r="9"/><line x1="60" y1="29" x2="60" y2="70"/><line x1="60" y1="38" x2="42" y2="54"/><line x1="42" y1="54" x2="60" y2="58"/><line x1="60" y1="38" x2="78" y2="54"/><line x1="78" y1="54" x2="60" y2="58"/><line x1="60" y1="70" x2="46" y2="106"/><line x1="60" y1="70" x2="74" y2="106"/></svg>`,
+/* ICONOS ESTIRAMIENTOS */
+stBreathing:`<svg viewBox="0 0 120 120"><circle cx="60" cy="20" r="9"/><line x1="60" y1="29" x2="60" y2="68"/><line x1="60" y1="38" x2="44" y2="56"/><line x1="44" y1="56" x2="60" y2="60"/><line x1="60" y1="38" x2="76" y2="56"/><line x1="76" y1="56" x2="60" y2="60"/><line x1="60" y1="68" x2="30" y2="92"/><line x1="60" y1="68" x2="90" y2="92"/><line x1="30" y1="92" x2="62" y2="100"/><line x1="90" y1="92" x2="58" y2="100"/></svg>`,
+stNeck:`<svg viewBox="0 0 120 120"><circle cx="66" cy="22" r="9"/><line x1="58" y1="32" x2="56" y2="72"/><line x1="56" y1="40" x2="82" y2="30"/><line x1="82" y1="30" x2="74" y2="16"/><line x1="56" y1="72" x2="46" y2="106"/><line x1="56" y1="72" x2="68" y2="106"/><line x1="56" y1="42" x2="38" y2="64"/></svg>`,
+stShoulderCross:`<svg viewBox="0 0 120 120"><circle cx="60" cy="18" r="9"/><line x1="60" y1="27" x2="60" y2="68"/><line x1="60" y1="36" x2="90" y2="46"/><line x1="60" y1="36" x2="38" y2="52"/><line x1="38" y1="52" x2="82" y2="48"/><line x1="60" y1="68" x2="48" y2="106"/><line x1="60" y1="68" x2="72" y2="106"/></svg>`,
+stTriceps:`<svg viewBox="0 0 120 120"><circle cx="60" cy="24" r="9"/><line x1="60" y1="33" x2="60" y2="72"/><line x1="60" y1="40" x2="74" y2="12"/><line x1="74" y1="12" x2="60" y2="30"/><line x1="60" y1="40" x2="42" y2="16"/><line x1="42" y1="16" x2="72" y2="12"/><line x1="60" y1="72" x2="48" y2="106"/><line x1="60" y1="72" x2="72" y2="106"/></svg>`,
+stChestDoor:`<svg viewBox="0 0 120 120"><line x1="12" y1="8" x2="12" y2="110"/><line x1="108" y1="8" x2="108" y2="110"/><circle cx="60" cy="26" r="9"/><line x1="60" y1="35" x2="60" y2="72"/><line x1="60" y1="42" x2="14" y2="34"/><line x1="60" y1="42" x2="106" y2="34"/><line x1="60" y1="72" x2="48" y2="106"/><line x1="60" y1="72" x2="72" y2="106"/></svg>`,
+stCatCow:`<svg viewBox="0 0 120 120"><circle cx="24" cy="62" r="8"/><path d="M32 60 Q58 34 86 58"/><line x1="40" y1="52" x2="40" y2="94"/><line x1="86" y1="58" x2="84" y2="94"/></svg>`,
+stChild:`<svg viewBox="0 0 120 120"><circle cx="20" cy="86" r="8"/><path d="M28 82 Q54 66 80 76"/><line x1="80" y1="76" x2="84" y2="98"/><line x1="84" y1="98" x2="56" y2="102"/><line x1="26" y1="90" x2="4" y2="102"/></svg>`,
+stTwist:`<svg viewBox="0 0 120 120"><circle cx="16" cy="60" r="9"/><line x1="25" y1="60" x2="64" y2="60"/><line x1="40" y1="24" x2="40" y2="96"/><line x1="64" y1="60" x2="88" y2="86"/><line x1="88" y1="86" x2="104" y2="66"/></svg>`,
+stKnees:`<svg viewBox="0 0 120 120"><circle cx="16" cy="94" r="9"/><line x1="25" y1="94" x2="62" y2="94"/><line x1="62" y1="94" x2="76" y2="62"/><line x1="76" y1="62" x2="54" y2="58"/><line x1="34" y1="90" x2="62" y2="62"/></svg>`,
+stFigure4:`<svg viewBox="0 0 120 120"><circle cx="16" cy="94" r="9"/><line x1="25" y1="94" x2="60" y2="94"/><line x1="60" y1="94" x2="74" y2="60"/><line x1="74" y1="60" x2="84" y2="94"/><line x1="60" y1="94" x2="94" y2="62"/></svg>`,
+stHipFlexor:`<svg viewBox="0 0 120 120"><circle cx="56" cy="16" r="9"/><line x1="56" y1="25" x2="56" y2="58"/><line x1="56" y1="32" x2="42" y2="8"/><line x1="56" y1="32" x2="70" y2="8"/><line x1="56" y1="58" x2="82" y2="66"/><line x1="82" y1="66" x2="82" y2="102"/><line x1="56" y1="58" x2="34" y2="100"/></svg>`,
+stQuad:`<svg viewBox="0 0 120 120"><circle cx="46" cy="16" r="9"/><line x1="46" y1="25" x2="46" y2="62"/><line x1="46" y1="62" x2="46" y2="104"/><line x1="46" y1="62" x2="60" y2="84"/><line x1="60" y1="84" x2="80" y2="66"/><line x1="46" y1="34" x2="82" y2="66"/><line x1="46" y1="34" x2="26" y2="46"/></svg>`,
+stHamstring:`<svg viewBox="0 0 120 120"><circle cx="70" cy="60" r="9"/><line x1="36" y1="88" x2="64" y2="66"/><line x1="36" y1="88" x2="104" y2="90"/><line x1="64" y1="68" x2="98" y2="86"/></svg>`,
+stButterfly:`<svg viewBox="0 0 120 120"><circle cx="60" cy="22" r="9"/><line x1="60" y1="31" x2="60" y2="72"/><line x1="60" y1="72" x2="28" y2="88"/><line x1="28" y1="88" x2="58" y2="98"/><line x1="60" y1="72" x2="92" y2="88"/><line x1="92" y1="88" x2="62" y2="98"/><line x1="60" y1="40" x2="38" y2="72"/><line x1="60" y1="40" x2="82" y2="72"/></svg>`,
+stCalfWall:`<svg viewBox="0 0 120 120"><line x1="106" y1="8" x2="106" y2="110"/><circle cx="80" cy="24" r="9"/><line x1="74" y1="32" x2="56" y2="66"/><line x1="76" y1="36" x2="104" y2="42"/><line x1="56" y1="66" x2="68" y2="104"/><line x1="56" y1="66" x2="20" y2="102"/></svg>`,
 /* ICONOS GYM (genéricos por equipo) */
 gymBarbell:`<svg viewBox="0 0 120 120"><rect x="5" y="52" width="14" height="16" rx="2"/><rect x="101" y="52" width="14" height="16" rx="2"/><line x1="19" y1="60" x2="101" y2="60"/></svg>`,
 gymDumbbell:`<svg viewBox="0 0 120 120"><circle cx="30" cy="60" r="14"/><circle cx="90" cy="60" r="14"/><line x1="44" y1="60" x2="76" y2="60"/></svg>`,
@@ -769,6 +770,28 @@ const EX_CASA = {
   ytwRaise:{name:'Elevaciones Y-T-W',cue:'Boca abajo, forma una Y, luego T, luego W con los brazos, elevando cada vez. Nivel avanzado.',icon:'ytwRaise',tipo:'reps',sets:3,base:8,span:2,note:'(por posición)'},
   towelCurl:{name:'Curl Isométrico con Toalla',cue:'Pisa una toalla enrollada y tira hacia arriba haciendo fuerza contra tu propio pie. Bíceps.',icon:'towelCurl',tipo:'seg',sets:3,base:20,span:10,perSide:true},
   shoulderTap:{name:'Toques de Hombro en Plancha',cue:'En plancha alta, toca el hombro contrario con la mano sin mover la cadera.',icon:'shoulderTap',tipo:'reps',sets:3,base:16,span:4,note:'(total, alternando)'},
+  widePushup:{name:'Flexiones Anchas',cue:'Manos más abiertas que los hombros, baja el pecho entre las manos. Enfoca el pecho.',icon:'pushup',tipo:'reps',sets:3,base:8,span:4},
+  hinduPushup:{name:'Flexiones Hindúes',cue:'Desde la V invertida, baja el pecho rozando el piso en arco, sube con el pecho al frente y regresa. Hombros, pecho y tríceps.',icon:'pikePushup',tipo:'reps',sets:3,base:6,span:3},
+  archerPushup:{name:'Flexiones Arquero',cue:'Manos muy abiertas: baja hacia una mano mientras el otro brazo queda estirado, y alterna. Nivel avanzado.',icon:'pushup',tipo:'reps',sets:3,base:6,span:2,note:'(total, alternando)'},
+  plankUpDown:{name:'Plancha Arriba-Abajo',cue:'De plancha en antebrazos sube a plancha alta una mano a la vez y regresa. Tríceps y hombros.',icon:'plank',tipo:'reps',sets:3,base:10,span:4,note:'(total, alternando)'},
+  tempoPushup:{name:'Flexiones Lentas (3-1-3)',cue:'Baja contando 3 seg, pausa 1 seg abajo y sube en 3 seg. Menos repeticiones, mucho más trabajo.',icon:'pushup',tipo:'reps',sets:3,base:5,span:3},
+  palmPress:{name:'Prensa de Palmas',cue:'Junta las palmas frente al pecho y empuja una contra otra con fuerza constante. Respira, no aguantes el aire.',icon:'palmPress',tipo:'seg',sets:3,base:20,span:10},
+  sideLunge:{name:'Zancada Lateral',cue:'Da un paso largo al lado, flexiona esa rodilla llevando la cadera atrás; la otra pierna queda recta. Aductores y glúteo.',icon:'sideLunge',tipo:'reps',sets:3,base:10,span:2,perSide:true},
+  curtsyLunge:{name:'Zancada Cruzada (Reverencia)',cue:'Cruza una pierna por detrás de la otra como una reverencia y baja. Glúteo medio y muslo. Nivel avanzado.',icon:'lunge',tipo:'reps',sets:3,base:8,span:2,perSide:true},
+  jumpLunge:{name:'Zancadas con Salto',cue:'Baja en zancada y cambia de pierna en el aire. Aterriza suave. Nivel avanzado.',icon:'lunge',tipo:'reps',sets:3,base:8,span:3,note:'(total, alternando)'},
+  goodMorning:{name:'Buenos Días (Bisagra de Cadera)',cue:'Manos en la nuca, rodillas ligeramente flexionadas; lleva la cadera atrás con la espalda recta hasta sentir los isquios y sube apretando glúteos.',icon:'goodMorning',tipo:'reps',sets:3,base:12,span:3},
+  singleLegDeadlift:{name:'Peso Muerto a Una Pierna',cue:'Sobre una pierna, inclina el torso al frente mientras la otra sube atrás, espalda recta. Isquios, glúteo y equilibrio. Nivel avanzado.',icon:'singleLegDeadlift',tipo:'reps',sets:3,base:8,span:2,perSide:true},
+  wallSit:{name:'Sentadilla Isométrica en Pared',cue:'Espalda contra la pared y rodillas a 90°, mantén la posición. Cuádriceps y glúteo.',icon:'wallSit',tipo:'seg',sets:3,base:30,span:15},
+  birdDog:{name:'Perro-Pájaro',cue:'En cuatro apoyos, estira un brazo y la pierna contraria a la vez sin girar la cadera. Alterna. Espalda baja y core.',icon:'birdDog',tipo:'reps',sets:3,base:10,span:2,note:'(total, alternando)'},
+  swimmer:{name:'Nadador (boca abajo)',cue:'Boca abajo, brazos y piernas elevados, alterna brazo y pierna contraria como nadando. Espalda baja y glúteos. Nivel avanzado.',icon:'superman',tipo:'seg',sets:3,base:20,span:10},
+  reversePlank:{name:'Plancha Invertida',cue:'Sentado con las manos atrás, empuja la cadera arriba hasta quedar en línea recta mirando al techo. Espalda baja, glúteo y hombros.',icon:'reversePlank',tipo:'seg',sets:3,base:20,span:10},
+  deadBug:{name:'Bicho Muerto (Dead Bug)',cue:'Boca arriba, brazos al techo y rodillas a 90°; baja brazo y pierna contrarios sin despegar la espalda baja del piso. Core profundo.',icon:'deadBug',tipo:'reps',sets:3,base:10,span:3,note:'(total, alternando)'},
+  hollowHold:{name:'Hollow Hold',cue:'Boca arriba, despega hombros y piernas del piso formando un banano, con la espalda baja pegada. Nivel avanzado.',icon:'hollowHold',tipo:'seg',sets:3,base:15,span:10},
+  vUp:{name:'V-Ups',cue:'Sube torso y piernas a la vez formando una V y baja controlado. Nivel avanzado.',icon:'vUp',tipo:'reps',sets:3,base:8,span:3},
+  flutterKick:{name:'Patadas de Tijera (Flutter Kicks)',cue:'Boca arriba con las piernas rectas cerca del piso, patadas cortas alternas sin arquear la espalda.',icon:'legRaise',tipo:'seg',sets:3,base:20,span:10},
+  sidePlankDip:{name:'Plancha Lateral con Cadera Arriba-Abajo',cue:'En plancha lateral baja la cadera hacia el piso y vuelve a subir. Oblicuos. Nivel avanzado.',icon:'sidePlank',tipo:'reps',sets:3,base:10,span:3,perSide:true},
+  bearCrawl:{name:'Gateo de Oso',cue:'En cuatro apoyos con las rodillas a 5 cm del piso, avanza y retrocede moviendo mano y pie contrarios.',icon:'bearCrawl',tipo:'seg',sets:1,base:0,span:0},
+  buttKicks:{name:'Talones al Glúteo',cue:'Trota en el sitio llevando los talones hacia el glúteo.',icon:'highKnees',tipo:'seg',sets:1,base:0,span:0},
 };
 
 /* ============ BASE DE EJERCICIOS — GYM ============ */
@@ -841,37 +864,48 @@ function progressionFor(dateObj){
 const TEMPLATES_CASA = [
   {type:'variacion', title:'Piernas y Pantorrillas', slots:[
       ['squat','sumoSquat','jumpSquat'],
-      ['lunge','bulgarianSquat'],
+      ['lunge','bulgarianSquat','jumpLunge'],
+      ['sideLunge','curtsyLunge'],
+      ['goodMorning','singleLegDeadlift'],
       ['gluteBridge','singleLegGluteBridge'],
+      ['wallSit'],
       ['calfRaise','singleLegCalf'],
     ], warmup:['Rotación de tobillos y rodillas — 1 min','Sentadillas sin peso lentas — 15 reps','Marcha en el sitio elevando rodillas — 1 min'],
-    cooldown:['Estiramiento de cuádriceps — 30 seg c/pierna','Estiramiento de glúteo (figura 4) — 30 seg c/lado','Estiramiento de pantorrilla contra pared — 30 seg c/lado']},
+    cooldown:['Estiramiento de cuádriceps — 30 seg c/pierna','Estiramiento de glúteo (figura 4) — 30 seg c/lado','Estiramiento de isquiotibiales sentado — 30 seg c/pierna','Estiramiento de pantorrilla contra pared — 30 seg c/lado']},
   {type:'variacion', title:'Pecho y Tríceps', slots:[
       ['inclinePushup','pushup','diamondPushup'],
+      ['widePushup','hinduPushup','archerPushup'],
       ['dips','dipsElevated'],
+      ['plankUpDown'],
+      ['tempoPushup'],
+      ['palmPress'],
     ], warmup:['Círculos de hombro — 1 min','Flexiones inclinadas suaves — 10 reps','Estiramiento dinámico de brazos — 1 min'],
     cooldown:['Estiramiento de pecho en marco de puerta — 30 seg c/lado','Estiramiento de tríceps — 30 seg c/lado']},
   {type:'circuito', title:'Circuito Full Body', circuit:[
-      ['squat','jumpSquat'], ['pushup','diamondPushup'], ['mountainClimber'], ['lunge','bulgarianSquat'], ['plank','plankLegLift'], ['jumpingJack','skaterJump'],
+      ['squat','jumpSquat'], ['pushup','diamondPushup'], ['mountainClimber'], ['lunge','bulgarianSquat'], ['plank','plankLegLift'], ['bearCrawl'], ['jumpingJack','skaterJump'],
     ], warmup:['Trote suave en el sitio — 2 min','Jumping jacks lentos — 30 seg','Movilidad de cadera y hombros — 1 min'],
     cooldown:['Estiramiento general de piernas — 1 min','Respiración profunda y estiramiento de espalda — 1 min']},
   {type:'variacion', title:'Espalda y Bíceps', slots:[
       ['tableRow','tableRowElevated'],
       ['reverseSnowAngel','ytwRaise'],
-      ['superman'],
+      ['superman','swimmer'],
+      ['birdDog'],
+      ['reversePlank'],
       ['towelCurl'],
     ], warmup:['Gato-camello — 1 min','Círculos de brazos hacia atrás — 1 min','Retracciones de escápula sin peso — 12 reps'],
     cooldown:['Estiramiento de espalda (gato) — 30 seg','Estiramiento de bíceps con brazo extendido — 30 seg c/lado','Torsión espinal sentado — 30 seg c/lado']},
   {type:'variacion', title:'Hombros y Abdomen', slots:[
       ['shoulderTap','pikePushup'],
       ['plank','plankLegLift'],
+      ['deadBug','hollowHold'],
       ['bicycleCrunch','russianTwist'],
-      ['legRaise'],
-      ['sidePlank'],
+      ['legRaise','vUp'],
+      ['flutterKick'],
+      ['sidePlank','sidePlankDip'],
     ], warmup:['Círculos de hombro — 1 min','Plancha corta de activación — 20 seg','Rotaciones de torso suaves — 1 min'],
     cooldown:['Estiramiento de hombro cruzado — 30 seg c/lado','Rodillas al pecho acostado — 30 seg','Torsión espinal acostado — 30 seg c/lado']},
   {type:'circuito', title:'Circuito Quema Grasa', circuit:[
-      ['burpee'], ['jumpSquat'], ['highKnees'], ['skaterJump'], ['shadowBox'], ['mountainClimber'],
+      ['burpee'], ['jumpSquat'], ['highKnees'], ['skaterJump'], ['shadowBox'], ['buttKicks'], ['mountainClimber'],
     ], warmup:['Trote suave en el sitio — 2 min','Círculos de brazos y cadera — 1 min','Sentadillas sin peso — 10 reps'],
     cooldown:['Caminar en el sitio bajando el ritmo — 2 min','Estiramiento completo de piernas — 2 min']},
 ];
@@ -897,7 +931,76 @@ const TEMPLATES_GYM = [
     warmup:['5 min de cardio suave','Movilidad general — 1 min'],
     cooldown:['Caminar bajando el ritmo — 2 min','Estiramiento completo — 2 min']},
 ];
-const REST_TEMPLATE = {type:'descanso', title:'Descanso', note:'Día de descanso total. Deja que tus músculos se recuperen — así es como se construye la fuerza real. Si eliges pocos días de entreno, este descanso es aún más valioso.'};
+/* ============ DÍAS DE DESCANSO: RUTINA DE ESTIRAMIENTOS (sin equipo, sirve para modo Casa y Gym) ============ */
+const ESTIRAMIENTOS = {
+  respiracion:{name:'Respiración diafragmática',cue:'Sentado cómodo, una mano en el abdomen. Inhala 4 seg por la nariz inflando la barriga y exhala 6 seg por la boca. Suelta mandíbula y hombros.',icon:'stBreathing',secs:60},
+  cuello:{name:'Cuello: inclinación lateral',cue:'Sentado o de pie, lleva la oreja hacia el hombro sin subir el hombro. Puedes apoyar la mano del mismo lado en la cabeza con una presión muy suave.',icon:'stNeck',secs:20,perSide:true},
+  hombroCruzado:{name:'Hombro cruzado',cue:'Lleva un brazo estirado a través del pecho y sujétalo con el otro brazo, sin girar el torso.',icon:'stShoulderCross',secs:30,perSide:true},
+  triceps:{name:'Tríceps sobre la cabeza',cue:'Dobla un codo detrás de la cabeza y empújalo suave con la otra mano. Espalda recta.',icon:'stTriceps',secs:30,perSide:true},
+  pechoPuerta:{name:'Pecho en marco de puerta',cue:'Antebrazos o manos en el marco, da un paso al frente hasta sentir apertura en el pecho. No arquees la espalda baja.',icon:'stChestDoor',secs:30},
+  gatoCamello:{name:'Gato-Camello',cue:'En cuatro apoyos, redondea la espalda exhalando y luego arquéala suave inhalando. Muy lento, unas 8 veces.',icon:'stCatCow',secs:45},
+  posturaNino:{name:'Postura del niño',cue:'Siéntate sobre los talones y estira los brazos al frente apoyando la frente en el piso. Respira hacia la espalda baja.',icon:'stChild',secs:45},
+  torsion:{name:'Torsión espinal acostado',cue:'Boca arriba, deja caer las rodillas dobladas hacia un lado y mira al lado contrario, con los hombros pegados al piso.',icon:'stTwist',secs:30,perSide:true},
+  rodillasPecho:{name:'Rodillas al pecho',cue:'Boca arriba, abraza las rodillas y llévalas suavemente hacia el pecho. Suelta la espalda baja.',icon:'stKnees',secs:30},
+  figura4:{name:'Glúteo en figura 4',cue:'Boca arriba, cruza un tobillo sobre la rodilla contraria y acerca la pierna de apoyo hacia el pecho.',icon:'stFigure4',secs:30,perSide:true},
+  flexorCadera:{name:'Flexor de cadera (zancada baja)',cue:'Rodilla trasera apoyada en el piso, empuja la cadera suavemente al frente con el torso erguido.',icon:'stHipFlexor',secs:30,perSide:true},
+  cuadriceps:{name:'Cuádriceps de pie',cue:'Lleva un talón hacia el glúteo sujetando el pie, rodillas juntas y cadera al frente. Apóyate en una pared si hace falta.',icon:'stQuad',secs:30,perSide:true},
+  isquios:{name:'Isquiotibiales sentado',cue:'Una pierna estirada, la otra doblada. Inclínate desde la cadera con la espalda larga hacia el pie estirado.',icon:'stHamstring',secs:30,perSide:true},
+  mariposa:{name:'Mariposa (cara interna del muslo)',cue:'Sentado con las plantas de los pies juntas, deja caer las rodillas y mantén la espalda larga.',icon:'stButterfly',secs:40},
+  pantorrilla:{name:'Pantorrilla contra la pared',cue:'Manos en la pared, una pierna atrás con el talón pegado al piso y la rodilla estirada. Empuja la cadera al frente.',icon:'stCalfWall',secs:30,perSide:true},
+  respiracionFinal:{name:'Cierre: respiración y relajación',cue:'Acostado boca arriba, ojos cerrados. Inhala 4 seg, exhala 6 seg, relajando cada parte del cuerpo de los pies a la cabeza.',icon:'stBreathing',secs:60},
+};
+const REST_TEMPLATE = {type:'descanso', title:'Descanso Activo · Estiramientos',
+  note:'Hoy no entrenas: tu cuerpo se recupera y se fortalece. Aprovecha para soltar la tensión con estiramientos suaves. Ve despacio, sin rebotes, y estira hasta sentir una tensión cómoda — nunca dolor. Respira profundo en cada uno.',
+  grupos:[
+    {titulo:'Respira y suelta', ids:['respiracion']},
+    {titulo:'Cuello, hombros y pecho', ids:['cuello','hombroCruzado','triceps','pechoPuerta']},
+    {titulo:'Espalda', ids:['gatoCamello','posturaNino','torsion']},
+    {titulo:'Cadera y piernas', ids:['rodillasPecho','figura4','flexorCadera','cuadriceps','isquios','mariposa','pantorrilla']},
+    {titulo:'Cierre', ids:['respiracionFinal']},
+  ]};
+const SEG_PREPARACION_ESTIRAMIENTO = 5;
+function pasosEstiramiento(plan){
+  const pasos = [];
+  plan.grupos.forEach(g=> g.ids.forEach(id=>{
+    const e = ESTIRAMIENTOS[id];
+    if(e.perSide){
+      pasos.push({nombre:e.name, secs:e.secs, lado:'Lado 1'});
+      pasos.push({nombre:e.name, secs:e.secs, lado:'Lado 2'});
+    } else {
+      pasos.push({nombre:e.name, secs:e.secs, lado:''});
+    }
+  }));
+  return pasos;
+}
+function minutosEstiramiento(plan){
+  const total = pasosEstiramiento(plan).reduce((acc,p)=> acc + p.secs + SEG_PREPARACION_ESTIRAMIENTO + 2, 0); // +2: el contador muestra de N a 0 en cada fase (N+1 segundos)
+  return Math.round(total/60);
+}
+function specEstiramiento(e){
+  const tiempo = e.secs>=60 ? `${e.secs/60} min` : `${e.secs} seg`;
+  return e.perSide ? `${tiempo} c/lado` : tiempo;
+}
+function renderEstiramientos(plan){
+  const minutos = minutosEstiramiento(plan);
+  const cantidad = plan.grupos.reduce((acc,g)=> acc + g.ids.length, 0);
+  let html = `<p class="stretch-summary">🧘 ${cantidad} estiramientos · ~${minutos} min · sin ningún equipo</p>`;
+  html += `<section class="circuit-box"><p>Rutina guiada: te avisa cuándo mantener, cuándo cambiar de lado y cuándo pasar al siguiente.</p>
+    <button class="timer-btn" id="startStretch" type="button">▶ Iniciar rutina guiada</button>
+    <output class="timer-display" id="timerDisplay" aria-live="polite" aria-atomic="true">
+      <span class="phase" id="timerPhase">PREPÁRATE</span>
+      <span class="num mono" id="timerNum">${SEG_PREPARACION_ESTIRAMIENTO}</span>
+      <span class="round" id="timerRound">Estiramiento 1</span>
+    </output></section>`;
+  plan.grupos.forEach(g=>{
+    html += `<h3 class="block-title">${g.titulo}</h3>`;
+    g.ids.forEach(id=>{
+      const e = ESTIRAMIENTOS[id];
+      html += `<article class="exercise estiramiento"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}</h4><p class="cue">${e.cue}</p></hgroup><output class="spec" title="Tiempo que debes mantener el estiramiento">${specEstiramiento(e)}</output></article>`;
+    });
+  });
+  return html;
+}
 
 const DAYNAMES = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const DAYNAMES_FULL = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
@@ -950,7 +1053,6 @@ function getNotes(){ return cloudState.notes; }
 function setNotes(n){ cloudState.notes = n; scheduleSave(); }
 function getPesos(){ return cloudState.pesos || (cloudState.pesos = {}); }
 function setPesos(p){ cloudState.pesos = p; scheduleSave(); }
-function getRutina(){ return cloudState.rutina || (cloudState.rutina = {log:{}}); }
 function getDietProfile(){ return cloudState.diet; }
 function setDietProfile(p){ cloudState.diet = p; scheduleSave(); }
 
@@ -1122,7 +1224,8 @@ function openDay(dObj){
   }
 
   if(plan.type==='descanso'){
-    html += `<figure class="rest-note"><span class="icon" aria-hidden="true">${ICONS.rest}</span><figcaption>${plan.note}</figcaption></figure>`;
+    html += `<figure class="rest-note compact"><span class="icon" aria-hidden="true">${ICONS.rest}</span><figcaption>${plan.note}</figcaption></figure>`;
+    html += renderEstiramientos(plan);
   } else {
     html += `<h3 class="block-title">Calentamiento (5 min)</h3><ul class="stretch-list">${plan.warmup.map(w=>`<li>${w}</li>`).join('')}</ul>`;
 
@@ -1151,7 +1254,7 @@ function openDay(dObj){
           </div>`;
         }
       });
-      html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Descansa 45-60 seg entre series. Duración estimada total: ~42-48 min.</p>`;
+      html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Descansa 45-60 seg entre series. Duración estimada total: ~${10+plan.slots.length*5}-${10+plan.slots.length*6} min.</p>`;
       if(prog.capped){ html += `<p style="font-size:12.5px;color:var(--gold);margin-top:6px;">Llegaste al nivel máximo de progresión 🏔. Si quieres seguir subiendo dificultad${MODE==='gym'?', sube el peso en la barra o mancuernas cuando completes cómodo el rango superior.':' y ya tienes gym, prueba activar el modo Gym arriba.'}</p>`; }
     } else {
       html += `<section class="circuit-box"><p>Circuito de <span class="rounds">${prog.rounds} rondas</span> · <span class="mono">${prog.work}s trabajo / ${prog.rest}s descanso</span> por estación</p>
@@ -1172,7 +1275,7 @@ function openDay(dObj){
         const rotMsg = mensajeRotacion(slot, prog.wsiEfectivo, chainLen);
         html += `<article class="exercise ${MODE==='gym'?'gym':'circuito'}"><span class="icon" aria-hidden="true">${ICONS[e.icon]}</span><hgroup class="info"><h4 class="exname">${e.name}${showLvl?` <span class="lvltag l${Math.min(lvl,2)}" title="Nivel de dificultad de esta variante">${LVL_LABEL[lvl]}</span>`:''}</h4><p class="cue">${e.cue}</p>${rotMsg?`<p class="rotation-note">🔁 ${rotMsg}</p>`:''}</hgroup><output class="spec" title="Segundos de trabajo en esta estación">${prog.work}s</output></article>`;
       });
-      html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Duración estimada total con calentamiento y enfriamiento: ~40-45 min.</p>`;
+      html += `<p style="font-size:12.5px;color:var(--text-dim);margin-top:6px;">Duración estimada total con calentamiento y enfriamiento: ~${Math.round(plan.circuit.length*prog.rounds*(prog.work+prog.rest)/60)+10} min.</p>`;
       window.__resolvedStations = resolvedStations;
     }
     html += `<h3 class="block-title">Enfriamiento (5 min)</h3><ul class="stretch-list">${plan.cooldown.map(w=>`<li>${w}</li>`).join('')}</ul>`;
@@ -1239,6 +1342,10 @@ function openDay(dObj){
       setLog(log); openDay(dObj); renderCalendar(); renderProgress();
     });
   }
+  const startStretchBtn = document.getElementById('startStretch');
+  if(startStretchBtn){
+    startStretchBtn.addEventListener('click', ()=> runEstiramientos(plan));
+  }
   const startCircuitBtn = document.getElementById('startCircuit');
   if(startCircuitBtn){
     startCircuitBtn.addEventListener('click', ()=> runCircuit(window.__resolvedStations, prog));
@@ -1302,6 +1409,51 @@ function runCircuit(stations, prog){
           }
         }
         beep(880,150); pulse(120);
+      }
+    }
+    paint();
+  },1000);
+}
+
+/* ============ TEMPORIZADOR DE ESTIRAMIENTOS (día de descanso) ============ */
+function runEstiramientos(plan){
+  if(timerInterval) clearInterval(timerInterval);
+  const pasos = pasosEstiramiento(plan);
+  const display = document.getElementById('timerDisplay');
+  const phaseEl = document.getElementById('timerPhase');
+  const numEl = document.getElementById('timerNum');
+  const roundEl = document.getElementById('timerRound');
+  display.classList.add('active'); display.classList.remove('work','rest');
+  let idx = 0, fase = 'prep', secondsLeft = SEG_PREPARACION_ESTIRAMIENTO;
+  beep(660,150); pulse(100);
+  function paint(){
+    const p = pasos[idx];
+    const esSegundoLado = p.lado === 'Lado 2';
+    phaseEl.textContent = fase==='prep' ? (esSegundoLado ? 'CAMBIA DE LADO' : 'PREPÁRATE') : 'MANTÉN Y RESPIRA';
+    numEl.textContent = secondsLeft;
+    roundEl.textContent = `Estiramiento ${idx+1}/${pasos.length} · ${p.nombre}${p.lado ? ' · ' + p.lado : ''}`;
+    display.classList.toggle('rest', fase==='hold');
+  }
+  paint();
+  timerInterval = setInterval(()=>{
+    secondsLeft--;
+    if(secondsLeft>=0 && secondsLeft<=3){ beep(560,90); }
+    if(secondsLeft<0){
+      if(fase==='prep'){
+        fase = 'hold'; secondsLeft = pasos[idx].secs;
+        beep(784,180); pulse(120);
+      } else {
+        idx++;
+        if(idx>=pasos.length){
+          clearInterval(timerInterval); timerInterval=null;
+          phaseEl.textContent = '¡LISTO!'; numEl.textContent = '🧘';
+          roundEl.textContent = 'Estiramientos completados — buen trabajo';
+          display.classList.add('rest');
+          beep(988,300); pulse([100,60,100,60,200]);
+          return;
+        }
+        fase = 'prep'; secondsLeft = SEG_PREPARACION_ESTIRAMIENTO;
+        beep(520,200); pulse([80,60,80]);
       }
     }
     paint();
@@ -1855,131 +2007,12 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
     document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('section.view').forEach(v=>v.classList.remove('active'));
     btn.classList.add('active');
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.removeAttribute('aria-current'));
+    btn.setAttribute('aria-current','page');
     document.getElementById('view-'+btn.dataset.view).classList.add('active');
     if(btn.dataset.view==='progreso') renderProgress();
-    if(btn.dataset.view==='rutina') renderRutina();
     if(btn.dataset.view==='nutricion') renderNutricion();
   });
-});
-
-/* ============ RUTINA (hábitos diarios) ============ */
-const RUTINA_HABITOS = [
-  { id:'ejercicio', label:'🏋️ Ejercicio mañana' },
-  { id:'freelance', label:'💼 Freelance / idiomas' },
-  { id:'habito',    label:'📖 Lectura o escritura' },
-  { id:'dormir',    label:'🌙 Dormir a la hora' },
-  { id:'nofap',     label:'🚫 NoFap' },
-  { id:'sinredes',  label:'📵 Sin contenido basura' }
-];
-const MES_NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-let rutinaViewDate = new Date();
-
-function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
-
-function computeHabitStreak(habitId){
-  const log = getRutina().log || {};
-  let streak = 0;
-  let d = new Date(); d.setHours(0,0,0,0);
-  while(true){
-    const key = localDateKey(d);
-    if(log[key] && log[key][habitId]){ streak++; d.setDate(d.getDate()-1); continue; }
-    break;
-  }
-  return streak;
-}
-
-function computeRutinaStreak(){
-  const log = getRutina().log || {};
-  let streak = 0;
-  let d = new Date(); d.setHours(0,0,0,0);
-  while(true){
-    const key = localDateKey(d);
-    const day = log[key];
-    const allDone = day && RUTINA_HABITOS.every(h=>day[h.id]);
-    if(allDone){ streak++; d.setDate(d.getDate()-1); continue; }
-    break;
-  }
-  return streak;
-}
-
-function renderRutina(){
-  const y = rutinaViewDate.getFullYear();
-  const m = rutinaViewDate.getMonth();
-  const totalDays = daysInMonth(y,m);
-  document.getElementById('rutinaMonthLabel').textContent = `${MES_NOMBRES[m]} ${y}`;
-
-  const rutina = getRutina();
-  const log = rutina.log || {};
-  const today = new Date(); today.setHours(0,0,0,0);
-  const todayKey = localDateKey(today);
-
-  let theadCols = '<th class="habito-label"></th>';
-  for(let d=1; d<=totalDays; d++){
-    const key = localDateKey(new Date(y,m,d));
-    theadCols += `<th${key===todayKey?' class="today-col"':''}>${d}</th>`;
-  }
-
-  let rows = '';
-  let totalCumplidos = 0, totalPosibles = 0;
-  RUTINA_HABITOS.forEach(h=>{
-    let cumplido = 0;
-    let cells = '';
-    for(let d=1; d<=totalDays; d++){
-      const dateObj = new Date(y,m,d);
-      const key = localDateKey(dateObj);
-      const checked = !!(log[key] && log[key][h.id]);
-      if(checked) cumplido++;
-      const isToday = key===todayKey;
-      const isPast = dateObj < today;
-      const disabledAttr = isToday ? '' : 'disabled';
-      const title = isToday ? '' : (isPast ? ' title="Los días pasados quedan bloqueados: solo puedes marcar hoy"' : ' title="Todavía no llega este día"');
-      cells += `<td${key===todayKey?' class="today-col"':''}><input type="checkbox" class="rutina-check${isPast?' rutina-check-past':''}" data-date="${key}" data-habit="${h.id}" ${checked?'checked':''} ${disabledAttr}${title}></td>`;
-    }
-    const pct = totalDays ? Math.round((cumplido/totalDays)*100) : 0;
-    totalCumplidos += cumplido;
-    totalPosibles += totalDays;
-    const racha = computeHabitStreak(h.id);
-    rows += `<tr><td class="habito-label">${h.label}<span class="rutina-pct">${cumplido}/${totalDays} · ${pct}% · 🔥${racha}</span></td>${cells}</tr>`;
-  });
-
-  let totalCells = '';
-  for(let d=1; d<=totalDays; d++){
-    const dateObj = new Date(y,m,d);
-    const key = localDateKey(dateObj);
-    const dayLog = log[key] || {};
-    const doneCount = RUTINA_HABITOS.filter(h=>dayLog[h.id]).length;
-    const full = doneCount === RUTINA_HABITOS.length && doneCount > 0;
-    totalCells += `<td${key===todayKey?' class="today-col"':''}><span class="rutina-day-total${full?' full':''}">${dateObj>today?'—':doneCount}</span></td>`;
-  }
-  rows += `<tr class="rutina-total-row"><td class="habito-label">📊 Total del día</td>${totalCells}</tr>`;
-
-  document.getElementById('rutinaTable').innerHTML = `<thead><tr>${theadCols}</tr></thead><tbody>${rows}</tbody>`;
-
-  const pctGeneral = totalPosibles ? Math.round((totalCumplidos/totalPosibles)*100) : 0;
-  document.getElementById('rutinaStats').innerHTML = `
-    <li class="stat-card"><output class="big mono">${pctGeneral}%</output><p class="label">Cumplimiento del mes</p></li>
-    <li class="stat-card"><output class="big mono">${totalCumplidos}/${totalPosibles}</output><p class="label">Hábitos completados</p></li>
-    <li class="stat-card"><output class="big mono">🔥 ${computeRutinaStreak()}</output><p class="label">Racha (todo cumplido)</p></li>
-  `;
-}
-
-document.getElementById('rutinaTable').addEventListener('change', (e)=>{
-  if(!e.target.classList.contains('rutina-check')) return;
-  const date = e.target.dataset.date;
-  const habit = e.target.dataset.habit;
-  const rutina = getRutina();
-  if(!rutina.log[date]) rutina.log[date] = {};
-  rutina.log[date][habit] = e.target.checked;
-  scheduleSave();
-  renderRutina();
-});
-document.getElementById('prevRutinaMonth').addEventListener('click', ()=>{
-  rutinaViewDate.setMonth(rutinaViewDate.getMonth()-1);
-  renderRutina();
-});
-document.getElementById('nextRutinaMonth').addEventListener('click', ()=>{
-  rutinaViewDate.setMonth(rutinaViewDate.getMonth()+1);
-  renderRutina();
 });
 
 /* ============ NUTRICIÓN ============ */
@@ -2522,7 +2555,6 @@ function startApp(){
   renderCoach();
   renderRachaCompaneros();
   renderProgress();
-  renderRutina();
   renderNutricion();
   document.getElementById('appHeader').hidden = false;
   document.getElementById('appMain').hidden = false;
